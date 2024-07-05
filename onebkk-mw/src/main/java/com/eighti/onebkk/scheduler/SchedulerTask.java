@@ -12,7 +12,7 @@ public class SchedulerTask {
 
 	public static final Logger LOG = LoggerFactory.getLogger(SchedulerTask.class);
 
-	private static final long usersToFRDevicesFixedRate = 600000;
+	private static final long usersToFRDevicesFixedRate = 600000; // 10 minutes
 
 	private final UserService userService;
 

@@ -65,4 +65,11 @@ public class CommonUtil {
 		return false;
 	}
 
+	// Method to check if a Base64 string exceeds a specified size limit
+	public static boolean exceedsSizeLimit(String base64String, int sizeLimitInBytes) {
+		// Calculate the estimated size of the decoded byte array
+		int estimatedSize = (int) (base64String.length() / 1.333);
+		// Check if the estimated size exceeds the specified limit
+		return estimatedSize > sizeLimitInBytes;
+	}
 }

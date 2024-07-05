@@ -54,10 +54,4 @@ public class User extends BaseEntity implements Serializable {
 	@Column(name = "synced_datetime")
 	private LocalDateTime syncedDatetime;
 
-	@Column(name = "response_code")
-	private String responseCode;
-
-	@Column(name = "response_message")
-	private String responseMessage;
-
 }
