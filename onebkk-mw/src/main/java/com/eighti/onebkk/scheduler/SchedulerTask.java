@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.eighti.onebkk.service.UserService;
 
+import jakarta.annotation.PostConstruct;
+
 @Component
 public class SchedulerTask {
 
@@ -20,8 +22,8 @@ public class SchedulerTask {
 		this.userService = userService;
 	}
 
+	@PostConstruct
 	public void onStartUp() {
-		syncUsersToFRDevicesTask();
 	}
 
 	@Scheduled(fixedRate = usersToFRDevicesFixedRate)

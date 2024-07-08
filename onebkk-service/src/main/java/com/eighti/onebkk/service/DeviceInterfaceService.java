@@ -1,20 +1,32 @@
 package com.eighti.onebkk.service;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.eighti.onebkk.dto.PersonnelDto;
 import com.eighti.onebkk.dto.deviceinterface.PersonnelResponse;
+import com.eighti.onebkk.dto.response.DeviceCallbackResponse;
+import com.eighti.onebkk.dto.response.IdentifyCallbackResponse;
+import com.eighti.onebkk.entity.Device;
+import com.eighti.onebkk.entity.InterfaceSetting;
+import com.eighti.onebkk.repository.DeviceRepository;
+import com.eighti.onebkk.repository.InterfaceSettingRepository;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.device.common.DeviceInterfaceAPIConstant;
+import com.eighti.onebkk.utils.device.common.DeviceInterfaceConstant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -22,13 +34,30 @@ public class DeviceInterfaceService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DeviceInterfaceService.class);
 
+	private final RestTemplate restTemplate;
+
+	private final DeviceRepository deviceRepository;
+
+	private final InterfaceSettingRepository interfaceSettingRepository;
+
+	public DeviceInterfaceService(RestTemplate restTemplate, DeviceRepository deviceRepository,
+			InterfaceSettingRepository interfaceSettingRepository) {
+		this.restTemplate = restTemplate;
+		this.deviceRepository = deviceRepository;
+		this.interfaceSettingRepository = interfaceSettingRepository;
+	}
+
+	/**
+	 * Register the personnel data to the device interface
+	 * 
+	 * @param personnelDto the personnel DTO object
+	 * @return the personnel object with response data (status, message)
+	 * @throws Exception
+	 */
 	public PersonnelDto registerFaceScannerTerminal(PersonnelDto personnelDto) {
 		LOG.info("registerFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName()
 				+ ", User id: " + personnelDto.getUserId());
 		try {
-
-			// Create a HttpClient instance
-			HttpClient httpClient = HttpClient.newHttpClient();
 
 			// Prepare request body with JSON data
 			Map<String, Object> requestBody = new HashMap<>();
@@ -44,23 +73,30 @@ public class DeviceInterfaceService {
 			String jsonBody = new ObjectMapper().writeValueAsString(requestBody);
 
 			// Create request headers
-//			Map<String, String> headersMap = new HashMap<>();
-//			headersMap.put("Content-Type", "application/x-www-form-urlencoded");
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+			HttpEntity<String> entity = new HttpEntity<String>(jsonBody, headers);
 
 			// Create the POST request
-			HttpRequest request = HttpRequest.newBuilder()
-					.uri(new URI(personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_CREATE)))
-					.headers("Content-Type", "application/x-www-form-urlencoded")
-					.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
+			String url = personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_CREATE);
 
+			// Update response type to PersonnelResponse and handle response object
 			LOG.info("registerFaceScannerTerminal() >>> Invoking face scanner terminal (register) ...");
-			// Send the request and get the response
-			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-			LOG.info("registerFaceScannerTerminal() >>> FR device register response: " + response.toString());
+			ResponseEntity<PersonnelResponse> response = restTemplate.postForEntity(url, entity,
+					PersonnelResponse.class);
 
-			// Deserialize response body into PersonnelResponse
-			ObjectMapper objectMapper = new ObjectMapper();
-			PersonnelResponse personnelResponse = objectMapper.readValue(response.body(), PersonnelResponse.class);
+			// Process the response
+			PersonnelResponse personnelResponse = response.getBody();
+			if (response.getStatusCode() == HttpStatus.OK) {
+				// Success scenario, access data from personnelResponse
+				LOG.info("registerFaceScannerTerminal() >>> FR device register response: "
+						+ personnelResponse.toString());
+				LOG.info("Personnel register successfully: " + personnelResponse.getMsg());
+			} else {
+				// Error scenario, handle error based on status code and response body
+				LOG.info("Error register personnel: " + response.getStatusCode());
+			}
 
 			// Print the response
 			if (response != null) {
@@ -82,13 +118,16 @@ public class DeviceInterfaceService {
 		return personnelDto;
 	}
 
+	/**
+	 * Update the personnel data to the device interface
+	 * 
+	 * @param personnelDto the personnel DTO object
+	 * @return the personnel object with response data (status, message)
+	 */
 	public PersonnelDto updateFaceScannerTerminal(PersonnelDto personnelDto) {
 		LOG.info("updateFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName() + ", User id: "
 				+ personnelDto.getUserId());
 		try {
-
-			// Create a HttpClient instance
-			HttpClient httpClient = HttpClient.newHttpClient();
 
 			// Prepare request body with JSON data
 			Map<String, Object> requestBody = new HashMap<>();
@@ -104,23 +143,29 @@ public class DeviceInterfaceService {
 			String jsonBody = new ObjectMapper().writeValueAsString(requestBody);
 
 			// Create request headers
-//			Map<String, String> headersMap = new HashMap<>();
-//			headersMap.put("Content-Type", "application/x-www-form-urlencoded");
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+			HttpEntity<String> entity = new HttpEntity<String>(jsonBody, headers);
 
 			// Create the POST request
-			HttpRequest request = HttpRequest.newBuilder()
-					.uri(new URI(personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_UPDATE)))
-					.headers("Content-Type", "application/x-www-form-urlencoded")
-					.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
+			String url = personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_UPDATE);
 
+			// Update response type to PersonnelResponse and handle response object
 			LOG.info("updateFaceScannerTerminal() >>> Invoking face scanner terminal (update) ...");
-			// Send the request and get the response
-			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-			LOG.info("registerFaceScannerTerminal() >>> FR device update response: " + response.toString());
+			ResponseEntity<PersonnelResponse> response = restTemplate.postForEntity(url, entity,
+					PersonnelResponse.class);
 
-			// Deserialize response body into PersonnelResponse
-			ObjectMapper objectMapper = new ObjectMapper();
-			PersonnelResponse personnelResponse = objectMapper.readValue(response.body(), PersonnelResponse.class);
+			// Process the response
+			PersonnelResponse personnelResponse = response.getBody();
+			if (response.getStatusCode() == HttpStatus.OK) {
+				// Success scenario, access data from personnelResponse
+				LOG.info("updateFaceScannerTerminal() >>> FR device update response: " + personnelResponse.toString());
+				System.out.println("Personnel updated successfully: " + personnelResponse.getMsg());
+			} else {
+				// Error scenario, handle error based on status code and response body
+				System.out.println("Error updating personnel: " + response.getStatusCode());
+			}
 
 			// Print the response
 			if (response != null) {
@@ -140,6 +185,175 @@ public class DeviceInterfaceService {
 		}
 
 		return personnelDto;
+	}
+
+	/**
+	 * Set identify callback URL to devices
+	 * 
+	 * @return all devices with set identify callback status
+	 */
+	public List<IdentifyCallbackResponse> setIdentifyCallBack() throws Exception {
+		List<IdentifyCallbackResponse> responseList = new ArrayList<IdentifyCallbackResponse>();
+		IdentifyCallbackResponse identifyResponse = null;
+
+		List<Device> deviceList = deviceRepository.findAll();
+
+		Map<String, String> requestBody = new HashMap<String, String>();
+		requestBody.put("callbackUrl", DeviceInterfaceConstant.IDENTIFY_CALLBACK);
+
+		for (Device device : deviceList) {
+			try {
+				identifyResponse = new IdentifyCallbackResponse();
+
+				requestBody.put("pass", device.getDevicePassword());
+
+				// Prepare the request body
+				String jsonBody = new ObjectMapper().writeValueAsString(requestBody);
+
+				// Create request headers
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+				HttpEntity<String> entity = new HttpEntity<String>(jsonBody, headers);
+
+				// Create the POST request URL
+				String url = device.getDeviceIp().concat(DeviceInterfaceAPIConstant.SET_IDENTIFY_CALLBACK);
+
+				// Update response type to PersonnelResponse and handle response object
+				LOG.info("setIdentifyCallBack() >>> Invoking face scanner terminal (setIdentifyCallBack) ...");
+				ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+				// Print the response
+				if (response != null) {
+					LOG.info("Response status code: " + response.getStatusCode());
+					LOG.info("Response body: " + response.getBody().toString());
+
+					identifyResponse.setDeviceName(device.getDeviceName());
+					identifyResponse.setSetIdenfityCallback(true);
+				} else {
+					identifyResponse.setDeviceName(device.getDeviceName());
+					identifyResponse.setSetIdenfityCallback(false);
+				}
+
+			} catch (Exception e) {
+				identifyResponse.setDeviceName(device.getDeviceName());
+				identifyResponse.setSetIdenfityCallback(false);
+				e.printStackTrace();
+				LOG.error("setIdentifyCallBack() >>> ERROR: " + e.getMessage(), e);
+
+			}
+
+			responseList.add(identifyResponse);
+		}
+
+		return responseList;
+	}
+
+	public List<IdentifyCallbackResponse> setDeviceHeartBeat() throws Exception {
+		List<IdentifyCallbackResponse> responseList = new ArrayList<IdentifyCallbackResponse>();
+		IdentifyCallbackResponse identifyResponse = null;
+
+		List<Device> deviceList = deviceRepository.findAll();
+
+		Map<String, String> requestBody = new HashMap<String, String>();
+
+		Optional<InterfaceSetting> interfaceSettingOptional = interfaceSettingRepository
+				.getValueByCode(DeviceInterfaceConstant.HEARTBEAT_CALLBACK);
+
+		requestBody.put("url", interfaceSettingOptional.isPresent() ? interfaceSettingOptional.get().getValue() : "");
+		requestBody.put("interval", "30");
+
+		for (Device device : deviceList) {
+			try {
+				identifyResponse = new IdentifyCallbackResponse();
+
+				requestBody.put("pass", device.getDevicePassword());
+
+				// Prepare the request body
+				String jsonBody = new ObjectMapper().writeValueAsString(requestBody);
+
+				// Create request headers
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+				HttpEntity<String> entity = new HttpEntity<String>(jsonBody, headers);
+
+				// Create the POST request URL
+				String url = device.getDeviceIp().concat(DeviceInterfaceAPIConstant.SET_HEATBEAT_CALLBACK);
+
+				// Update response type to PersonnelResponse and handle response object
+				LOG.info("setDeviceHeartBeat() >>> Invoking face scanner terminal (setDeviceHeartBeat) ...");
+				ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+				// Print the response
+				if (response != null) {
+					LOG.info("Response status code: " + response.getStatusCode());
+					LOG.info("Response body: " + response.getBody().toString());
+
+					identifyResponse.setDeviceName(device.getDeviceName());
+					identifyResponse.setSetDeviceHeartBeat(true);
+				} else {
+					identifyResponse.setDeviceName(device.getDeviceName());
+					identifyResponse.setSetDeviceHeartBeat(false);
+				}
+
+			} catch (Exception e) {
+				identifyResponse.setDeviceName(device.getDeviceName());
+				identifyResponse.setSetDeviceHeartBeat(false);
+				e.printStackTrace();
+				LOG.error("setDeviceHeartBeat() >>> ERROR: " + e.getMessage(), e);
+
+			}
+
+			responseList.add(identifyResponse);
+		}
+
+		return responseList;
+	}
+
+	public List<DeviceCallbackResponse> getCallbackAddress() throws Exception {
+		List<DeviceCallbackResponse> heartBeatCallbackDataList = new ArrayList<DeviceCallbackResponse>();
+		List<Device> deviceList = deviceRepository.findAll();
+
+		Map<String, String> params = new HashMap<String, String>();
+
+		DeviceCallbackResponse heartBeatCallbackResponse = null;
+		for (Device device : deviceList) {
+			try {
+				heartBeatCallbackResponse = new DeviceCallbackResponse();
+				params.put("pass", device.getDevicePassword());
+
+				// Create request headers
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+				// Create the GET request URL
+				String url = device.getDeviceIp().concat(DeviceInterfaceAPIConstant.GET_CALLBACK_ADDRESS);
+
+				// Update response type to PersonnelResponse and handle response object
+				LOG.info("getCallbackAddress() >>> Invoking face scanner terminal (getCallbackAddress) ...");
+				ResponseEntity<DeviceCallbackResponse> response = restTemplate.getForEntity(url,
+						DeviceCallbackResponse.class, params);
+
+				// Print the response
+				if (response != null) {
+					heartBeatCallbackResponse = response.getBody();
+					LOG.info("getCallbackAddress() >>> Response status code: " + response.getStatusCode());
+					LOG.info("getCallbackAddress() >>> Response body: " + response.getBody().toString());
+					heartBeatCallbackDataList.add(heartBeatCallbackResponse);
+				} else {
+					LOG.info("getCallbackAddress() >>> Response data is NULL");
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				LOG.error("getCallbackAddress() >>> ERROR: " + e.getMessage(), e);
+			}
+
+		}
+
+		return heartBeatCallbackDataList;
+
 	}
 
 	private static Map<String, String> createPersonJsonObject(PersonnelDto p) {
