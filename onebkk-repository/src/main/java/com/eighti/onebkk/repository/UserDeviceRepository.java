@@ -14,4 +14,8 @@ public interface UserDeviceRepository extends JpaRepository<UserDevice, Long> {
 	Optional<UserDevice> findUserDeviceByUserIdAndDeviceId(@Param("userId") Long userId,
 			@Param("deviceId") Long deviceId);
 
+	@Query("SELECT ud FROM UserDevice ud WHERE ud.user.userId=:userId AND ud.device.deviceKey=:deviceKey")
+	Optional<UserDevice> findUserDeviceByUserIdAndDeviceKey(@Param("userId") String userId,
+			@Param("deviceKey") String deviceKey);
+
 }

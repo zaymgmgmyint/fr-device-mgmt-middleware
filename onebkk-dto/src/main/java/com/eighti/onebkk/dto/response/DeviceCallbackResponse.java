@@ -33,21 +33,12 @@ public class DeviceCallbackResponse implements Serializable {
 
 		String heartBeatCallback;
 		String identifyCallback;
-		// ImgRegCallback imgRegCallback;
-
-	}
-
-	@Getter
-	@Setter
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	public class ImgRegCallback implements Serializable {
-
-		private static final long serialVersionUID = 2726507771562610709L;
-
+		String imgRegCallback;
 		String eventCallback;
 		String QRCodeCallback;
 		String fingerRegCallback;
 		String cardRegCallback;
+
 	}
 
 }

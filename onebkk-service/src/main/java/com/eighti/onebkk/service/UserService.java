@@ -43,7 +43,7 @@ public class UserService {
 	private String EXCEL_FILE_PATH;
 
 	private static final DateTimeFormatter formatter = DateTimeFormatter
-			.ofPattern(DateConstant.DATE_FORMAT_yyyy_mm_dd_hhmmss);
+			.ofPattern(DateConstant.DATE_FORMAT_yyyy_mm_dd_HHmmss);
 
 	private final UserRepository userRepository;
 	private final SyncTimeRepository syncTimeRepository;
@@ -86,6 +86,14 @@ public class UserService {
 				User user = new User();
 				String userId = row.getCell(0).getStringCellValue();
 
+				// Check requirement fields
+				if (!CommonUtil.validString(row.getCell(0).getStringCellValue())
+						&& !CommonUtil.validString(row.getCell(4).getStringCellValue())
+						&& !CommonUtil.validString(row.getCell(5).getStringCellValue())) {
+					LOG.info("syncUsersToFRDevices() >>> User data is invalid: row number: " + row.getRowNum());
+					continue;
+				}
+
 				// Check user is existing or not existing
 				if (CommonUtil.validString(userId) && isUserExist(userId)) {
 					LOG.info("syncUsersToFRDevices() >>> User is already existing : " + userId);
@@ -99,8 +107,8 @@ public class UserService {
 				user.setUserPhoneNumber(row.getCell(2).getStringCellValue());
 				user.setUserTag(row.getCell(3).getStringCellValue());
 
-				user.setFrCardNumber(row.getCell(4).getStringCellValue());
-				user.setFrImageId(row.getCell(5).getStringCellValue());
+				user.setFrCardNumber(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : "");
+				user.setFrImageId(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "");
 
 				user.setUserCreatedDate(LocalDateTime.parse(row.getCell(6).getStringCellValue(), formatter));
 				user.setUserLastModifiedDate(LocalDateTime.parse(row.getCell(7).getStringCellValue(), formatter));
@@ -115,7 +123,7 @@ public class UserService {
 				}
 
 				// Batch size for saving users
-				int batchSize = 20;
+				int batchSize = 30;
 				if (userEntityList.size() >= batchSize) {
 					saveUsersInBatch(userEntityList);
 					userEntityList.clear();
@@ -282,8 +290,8 @@ public class UserService {
 	}
 
 	private List<Device> getAllDevices() {
-
-		List<Device> devices = deviceRepository.findAll();
+		List<Device> devices = deviceRepository.findByStatus(1);
+		// devices = devices.stream().filter(device -> device.getStatus() != null && device.getStatus() == 1).toList();
 		return CommonUtil.validList(devices) ? devices : new ArrayList<Device>();
 
 	}

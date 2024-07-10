@@ -1,4 +1,4 @@
-package com.eighti.onebkk.controller;
+package com.eighti.onebkk.api.controller;
 
 import java.util.List;
 
@@ -19,13 +19,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/v1/device/mgmt")
 @Tag(name = "Devie Management Interface APIs")
-public class DeviceMgmtInterfaceController {
+public class DeviceManagementInterfaceApi {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DeviceMgmtInterfaceController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(DeviceManagementInterfaceApi.class);
 
 	private final DeviceInterfaceService deviceInterfaceService;
 
-	public DeviceMgmtInterfaceController(DeviceInterfaceService deviceInterfaceService) {
+	public DeviceManagementInterfaceApi(DeviceInterfaceService deviceInterfaceService) {
 		this.deviceInterfaceService = deviceInterfaceService;
 	}
 

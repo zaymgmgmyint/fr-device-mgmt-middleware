@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DeviceInterfaceService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DeviceInterfaceService.class);
+
+	@Value("${heartbeat.interval.second}")
+	private String heartBeatIntervalSecond;
 
 	private final RestTemplate restTemplate;
 
@@ -99,7 +103,7 @@ public class DeviceInterfaceService {
 			}
 
 			// Print the response
-			if (response != null) {
+			if (personnelResponse != null) {
 				personnelDto.setResponseCode(personnelResponse.getCode());
 				personnelDto.setResponseMessage(personnelResponse.getMsg());
 				personnelDto.setDataSynced(personnelResponse.getSuccess() ? 1 : 0);
@@ -168,7 +172,7 @@ public class DeviceInterfaceService {
 			}
 
 			// Print the response
-			if (response != null) {
+			if (personnelResponse != null) {
 				personnelDto.setResponseCode(personnelResponse.getCode());
 				personnelDto.setResponseMessage(personnelResponse.getMsg());
 				personnelDto.setDataSynced(personnelResponse.getSuccess() ? 1 : 0);
@@ -192,14 +196,18 @@ public class DeviceInterfaceService {
 	 * 
 	 * @return all devices with set identify callback status
 	 */
-	public List<IdentifyCallbackResponse> setIdentifyCallBack() throws Exception {
+	public List<IdentifyCallbackResponse> setIdentifyCallBack() {
 		List<IdentifyCallbackResponse> responseList = new ArrayList<IdentifyCallbackResponse>();
 		IdentifyCallbackResponse identifyResponse = null;
 
-		List<Device> deviceList = deviceRepository.findAll();
+		List<Device> deviceList = deviceRepository.findByStatus(1);
 
 		Map<String, String> requestBody = new HashMap<String, String>();
-		requestBody.put("callbackUrl", DeviceInterfaceConstant.IDENTIFY_CALLBACK);
+		Optional<InterfaceSetting> interfaceSettingOptional = interfaceSettingRepository
+				.getValueByCode(DeviceInterfaceConstant.IDENTIFY_CALLBACK);
+		requestBody.put("callbackUrl",
+				interfaceSettingOptional.isPresent() ? interfaceSettingOptional.get().getValue() : "");
+		requestBody.put("base64Enable", "1");
 
 		for (Device device : deviceList) {
 			try {
@@ -221,13 +229,15 @@ public class DeviceInterfaceService {
 
 				// Update response type to PersonnelResponse and handle response object
 				LOG.info("setIdentifyCallBack() >>> Invoking face scanner terminal (setIdentifyCallBack) ...");
-				ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+				ResponseEntity<IdentifyCallbackResponse> response = restTemplate.postForEntity(url, entity,
+						IdentifyCallbackResponse.class);
 
 				// Print the response
 				if (response != null) {
 					LOG.info("Response status code: " + response.getStatusCode());
 					LOG.info("Response body: " + response.getBody().toString());
 
+					identifyResponse = response.getBody();
 					identifyResponse.setDeviceName(device.getDeviceName());
 					identifyResponse.setSetIdenfityCallback(true);
 				} else {
@@ -240,7 +250,6 @@ public class DeviceInterfaceService {
 				identifyResponse.setSetIdenfityCallback(false);
 				e.printStackTrace();
 				LOG.error("setIdentifyCallBack() >>> ERROR: " + e.getMessage(), e);
-
 			}
 
 			responseList.add(identifyResponse);
@@ -249,11 +258,11 @@ public class DeviceInterfaceService {
 		return responseList;
 	}
 
-	public List<IdentifyCallbackResponse> setDeviceHeartBeat() throws Exception {
+	public List<IdentifyCallbackResponse> setDeviceHeartBeat() {
 		List<IdentifyCallbackResponse> responseList = new ArrayList<IdentifyCallbackResponse>();
 		IdentifyCallbackResponse identifyResponse = null;
 
-		List<Device> deviceList = deviceRepository.findAll();
+		List<Device> deviceList = deviceRepository.findByStatus(1);
 
 		Map<String, String> requestBody = new HashMap<String, String>();
 
@@ -261,7 +270,7 @@ public class DeviceInterfaceService {
 				.getValueByCode(DeviceInterfaceConstant.HEARTBEAT_CALLBACK);
 
 		requestBody.put("url", interfaceSettingOptional.isPresent() ? interfaceSettingOptional.get().getValue() : "");
-		requestBody.put("interval", "30");
+		requestBody.put("interval", heartBeatIntervalSecond);
 
 		for (Device device : deviceList) {
 			try {
@@ -283,13 +292,15 @@ public class DeviceInterfaceService {
 
 				// Update response type to PersonnelResponse and handle response object
 				LOG.info("setDeviceHeartBeat() >>> Invoking face scanner terminal (setDeviceHeartBeat) ...");
-				ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+				ResponseEntity<IdentifyCallbackResponse> response = restTemplate.postForEntity(url, entity,
+						IdentifyCallbackResponse.class);
 
 				// Print the response
 				if (response != null) {
 					LOG.info("Response status code: " + response.getStatusCode());
 					LOG.info("Response body: " + response.getBody().toString());
 
+					identifyResponse = response.getBody();
 					identifyResponse.setDeviceName(device.getDeviceName());
 					identifyResponse.setSetDeviceHeartBeat(true);
 				} else {
@@ -311,16 +322,16 @@ public class DeviceInterfaceService {
 		return responseList;
 	}
 
-	public List<DeviceCallbackResponse> getCallbackAddress() throws Exception {
+	public List<DeviceCallbackResponse> getCallbackAddress() {
 		List<DeviceCallbackResponse> heartBeatCallbackDataList = new ArrayList<DeviceCallbackResponse>();
-		List<Device> deviceList = deviceRepository.findAll();
+		List<Device> deviceList = deviceRepository.findByStatus(1);
 
 		Map<String, String> params = new HashMap<String, String>();
 
-		DeviceCallbackResponse heartBeatCallbackResponse = null;
+		DeviceCallbackResponse deviceCallbackResponse = null;
 		for (Device device : deviceList) {
 			try {
-				heartBeatCallbackResponse = new DeviceCallbackResponse();
+				deviceCallbackResponse = new DeviceCallbackResponse();
 				params.put("pass", device.getDevicePassword());
 
 				// Create request headers
@@ -337,10 +348,11 @@ public class DeviceInterfaceService {
 
 				// Print the response
 				if (response != null) {
-					heartBeatCallbackResponse = response.getBody();
 					LOG.info("getCallbackAddress() >>> Response status code: " + response.getStatusCode());
 					LOG.info("getCallbackAddress() >>> Response body: " + response.getBody().toString());
-					heartBeatCallbackDataList.add(heartBeatCallbackResponse);
+
+					deviceCallbackResponse = response.getBody();
+					heartBeatCallbackDataList.add(deviceCallbackResponse);
 				} else {
 					LOG.info("getCallbackAddress() >>> Response data is NULL");
 				}

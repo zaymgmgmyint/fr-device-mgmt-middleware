@@ -12,7 +12,7 @@ import com.eighti.onebkk.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-	@Query("SELECT u FROM User u WHERE u.userId=:userId")
+	@Query(value = "SELECT * FROM user u WHERE u.user_id=:userId LIMIT 1", nativeQuery = true)
 	Optional<User> findTopOneByUserId(@Param("userId") String userId);
 
 	@Query("SELECT u FROM User u WHERE u.syncedDatetime>=:lastSyncedDatetime")

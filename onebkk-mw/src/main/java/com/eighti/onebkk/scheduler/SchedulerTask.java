@@ -7,14 +7,12 @@ import org.springframework.stereotype.Component;
 
 import com.eighti.onebkk.service.UserService;
 
-import jakarta.annotation.PostConstruct;
-
 @Component
 public class SchedulerTask {
 
 	public static final Logger LOG = LoggerFactory.getLogger(SchedulerTask.class);
 
-	private static final long usersToFRDevicesFixedRate = 600000; // 10 minutes
+	private static final long usersToFRDevicesFixedRate = 60000; // 1 minutes
 
 	private final UserService userService;
 
@@ -22,11 +20,8 @@ public class SchedulerTask {
 		this.userService = userService;
 	}
 
-	@PostConstruct
-	public void onStartUp() {
-	}
 
-	@Scheduled(fixedRate = usersToFRDevicesFixedRate)
+	@Scheduled(fixedRate = usersToFRDevicesFixedRate, initialDelay = 10000)
 	public void syncUsersToFRDevicesTask() {
 		LOG.info("\n===== START Perform Data Synchronizing =====");
 

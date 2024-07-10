@@ -2,6 +2,7 @@ package com.eighti.onebkk.configuration;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,14 +14,20 @@ import io.swagger.v3.oas.models.servers.Server;
 @Configuration
 public class SwaggerConfig {
 
+	@Value("${server.localhost}")
+	private String serverLocalhost;
+
+	@Value("${server.localhost.ip}")
+	private String serverLocalhostIp;
+
 	@Bean
 	OpenAPI defineOpenAPI() {
 		Server developmentServer = new Server();
-		developmentServer.setUrl("http://127.0.0.1:8080");
+		developmentServer.setUrl(serverLocalhost);
 		developmentServer.setDescription("Development");
 
 		Server localIpServer = new Server();
-		localIpServer.setUrl("http://192.168.1.48:8080");
+		localIpServer.setUrl(serverLocalhostIp);
 		localIpServer.setDescription("Local IP Server");
 
 		Contact contact = new Contact();

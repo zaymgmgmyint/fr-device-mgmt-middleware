@@ -23,6 +23,9 @@ public class Device extends BaseEntity implements Serializable {
 	@Column(name = "device_name")
 	private String deviceName;
 
+	@Column(name = "device_key")
+	private String deviceKey;
+
 	@Column(name = "device_ip")
 	private String deviceIp;
 
@@ -35,4 +38,9 @@ public class Device extends BaseEntity implements Serializable {
 	@Column(name = "device_group")
 	private String deviceGroup;
 
+	@Column(name = "device_status")
+	private Integer deviceStatus;
+
+	@Column(name = "status")
+	private Integer status;
 }

@@ -1,4 +1,4 @@
-package com.eighti.onebkk.controller;
+package com.eighti.onebkk.api.controller;
 
 import java.time.LocalDate;
 
@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name = "Welcome API")
-public class WelcomeController {
+public class WelcomeApi {
 
 	@GetMapping("/")
 	public String welcome() {
