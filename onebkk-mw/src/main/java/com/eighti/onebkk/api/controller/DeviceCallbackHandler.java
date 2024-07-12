@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.eighti.onebkk.dto.request.HeartBeatCallbackRequest;
-import com.eighti.onebkk.dto.request.IdentifyCallbackRequest;
+import com.eighti.onebkk.dto.api.request.HeartBeatCallbackRequest;
+import com.eighti.onebkk.dto.api.request.IdentifyCallbackRequest;
 import com.eighti.onebkk.response.DeviceCallbackResponse;
 import com.eighti.onebkk.service.DeviceCallbackService;
 

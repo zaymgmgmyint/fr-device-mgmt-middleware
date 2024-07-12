@@ -1,4 +1,4 @@
-package com.eighti.onebkk.dto.request;
+package com.eighti.onebkk.dto.api.request;
 
 import java.io.Serializable;
 

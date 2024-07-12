@@ -11,6 +11,9 @@ public class DeviceCallbackResponse {
 
 	private Integer result;
 	private Boolean success;
+	private String code;
+	private String msg;
+	private String data;
 
 	public DeviceCallbackResponse(int result, boolean success) {
 		this.result = result;

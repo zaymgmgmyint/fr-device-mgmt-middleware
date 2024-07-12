@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Device Management</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		.full-height {
+			height: 100vh;
+		}
+
+		.centered {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container full-height centered">
+
+		<form action="#" th:action="@{/login}" th:object="${loginRequest}" method="post">
+			<div class="card" style="width: 50rem;">
+				<div class="card-body">
+					<div class="d-flex align-items-center mb-3 pb-1">
+						<i class="bi bi-boxes fa-3x me-3" style="color: #ff6219;"></i>
+						<span class="h1 fw-bold mb-0">One BKK</span>
+					</div>
+
+					<h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account</h5>
+
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label for="inputEmail4" class="form-label">Name</label>
+							<input th:field="*{loginName}" type="text" class="form-control" id="loginName">
+							<span class="text-danger" th:if="${#fields.hasErrors('loginName')}"
+								th:errors="*{loginName}"></span>
+						</div>
+						<div class="col-md-6">
+							<label for="inputPassword4" class="form-label">Password</label>
+							<input th:field="*{password}" type="password" class="form-control" id="password">
+							<span class="text-danger" th:if="${#fields.hasErrors('password')}"
+								th:errors="*{password}"></span>
+						</div>
+
+						<!-- Submit button -->
+						<button id="loginBtn" type="submit" data-mdb-button-init data-mdb-ripple-init
+							class="btn btn-primary btn-block mb-4">Sign in</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Check the server-side value isAuthenticated and add classes based on it -->
+			<!--<div id="loginToast"
+				th:classappend="${authenticated} eq 1 ? 'toast hide position-fixed top-0 end-0' : 'toast show position-fixed top-0 end-0'"
+				role="alert" aria-live="assertive" aria-atomic="true">
+				<div class="toast-header text-light bg-danger">
+					<strong class="me-auto">Login Failed</strong>
+					<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+				</div>
+				<div class="toast-body">
+					Invalid username or password. Please try again.
+				</div>
+			</div>-->
+		</form>
+
+
+	</div>
+
+
+	<script th:src="@{/js/jquery.min.js}"></script>
+	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+	<script>
+		$(document).ready(function () {
+		});
+	</script>
+</body>
+
+</html>

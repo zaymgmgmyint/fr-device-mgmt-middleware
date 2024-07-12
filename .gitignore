@@ -1,24 +1,99 @@
-# Compiled class file
-*.class
+# Eclipse specific files
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+.localhistory/
+.loadpath
+.project
+.settings/
+.springBeans
 
-# Log file
+# IntelliJ IDEA specific files
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# NetBeans specific files
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# VS Code specific files
+.vscode/
+
+# macOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux specific files
+*~
+
+# Maven specific files
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+
+# Gradle specific files
+.gradle/
+build/
+!gradle-wrapper.jar
+
+# Log files
 *.log
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
+# Temporary files
+*.class
 *.war
-*.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Spring Boot specific files
+.spring_boot_devtools/
+
+# STS (Spring Tool Suite) specific files
+.springBeans
+
+# AWS Elastic Beanstalk specific files
+.elasticbeanstalk/
+
+# Heroku specific files
+Procfile
+
+# IDEA specific files
+*.ipr
+*.iml
+*.iws
+
+# Python virtual environment
+venv/
+__pycache__/
+
+# Custom rule for ignoring secrets
+secrets/
+
+# Exclude any files ending in .local
+*.local
+
+# Other files to ignore
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties

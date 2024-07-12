@@ -15,5 +15,4 @@ public interface DeviceRepository extends JpaRepository<Device, Long> {
 
 	@Query(value = "SELECT * FROM device d WHERE d.device_key=:deviceKey", nativeQuery = true)
 	Optional<Device> findDeviceByDeviceKey(@Param("deviceKey") String deviceKey);
-
 }

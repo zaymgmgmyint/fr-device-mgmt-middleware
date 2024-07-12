@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eighti.onebkk.dto.IdentifyLogDto;
-import com.eighti.onebkk.dto.request.IdentifyAuditLogRequest;
+import com.eighti.onebkk.dto.api.request.IdentifyAuditLogRequest;
 import com.eighti.onebkk.response.Response;
 import com.eighti.onebkk.service.AuditLogService;
 import com.eighti.onebkk.utils.FieldErrorCode;

@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.eighti.onebkk.dto.PersonnelDto;
+import com.eighti.onebkk.dto.api.response.DeviceCallbackResponse;
+import com.eighti.onebkk.dto.api.response.IdentifyCallbackResponse;
 import com.eighti.onebkk.dto.deviceinterface.PersonnelResponse;
-import com.eighti.onebkk.dto.response.DeviceCallbackResponse;
-import com.eighti.onebkk.dto.response.IdentifyCallbackResponse;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.InterfaceSetting;
 import com.eighti.onebkk.repository.DeviceRepository;
@@ -365,9 +365,8 @@ public class DeviceInterfaceService {
 		}
 
 		return heartBeatCallbackDataList;
-
 	}
-
+	
 	private static Map<String, String> createPersonJsonObject(PersonnelDto p) {
 		Map<String, String> person = new HashMap<>();
 

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.eighti.onebkk.dto.response.DeviceCallbackResponse;
-import com.eighti.onebkk.dto.response.IdentifyCallbackResponse;
+import com.eighti.onebkk.dto.api.response.DeviceCallbackResponse;
+import com.eighti.onebkk.dto.api.response.IdentifyCallbackResponse;
 import com.eighti.onebkk.response.Response;
 import com.eighti.onebkk.service.DeviceInterfaceService;
 import com.eighti.onebkk.utils.FieldErrorCode;
@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/v1/device/mgmt")
-@Tag(name = "Devie Management Interface APIs")
+@Tag(name = "Device Management Interface APIs")
 public class DeviceManagementInterfaceApi {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DeviceManagementInterfaceApi.class);

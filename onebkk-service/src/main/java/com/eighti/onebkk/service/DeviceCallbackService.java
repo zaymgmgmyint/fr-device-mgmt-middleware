@@ -2,16 +2,19 @@ package com.eighti.onebkk.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.eighti.onebkk.dto.request.HeartBeatCallbackRequest;
-import com.eighti.onebkk.dto.request.IdentifyCallbackRequest;
+import com.eighti.onebkk.dto.api.request.HeartBeatCallbackRequest;
+import com.eighti.onebkk.dto.api.request.IdentifyCallbackRequest;
+import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.HeartBeatLog;
 import com.eighti.onebkk.entity.IdentifyLog;
+import com.eighti.onebkk.repository.DeviceRepository;
 import com.eighti.onebkk.repository.HeartBeatLogRepository;
 import com.eighti.onebkk.repository.IdentifyLogRepository;
 import com.eighti.onebkk.utils.CommonUtil;
@@ -25,15 +28,17 @@ public class DeviceCallbackService {
 
 	private final HeartBeatLogRepository heartbeatLogRepository;
 	private final IdentifyLogRepository identifyLogRepository;
+	private final DeviceRepository deviceRepository;
 
 	public DeviceCallbackService(HeartBeatLogRepository heartbeatLogRepository,
-			IdentifyLogRepository identifyLogRepository) {
+			IdentifyLogRepository identifyLogRepository, DeviceRepository deviceRepository) {
 		this.heartbeatLogRepository = heartbeatLogRepository;
 		this.identifyLogRepository = identifyLogRepository;
+		this.deviceRepository = deviceRepository;
 	}
 
 	// TODO save identify callback log
-	@Async("callBackExecutor")
+	@Async("identifyExecutor")
 	@Transactional
 	public void saveIdentifyCallbackLog(IdentifyCallbackRequest callbackData) throws Exception {
 		LOG.info("saveIdentifyCallbackLog() >>> Saving identify log: " + callbackData.getDeviceKey());
@@ -73,7 +78,7 @@ public class DeviceCallbackService {
 	}
 
 	// save heart beat callback log
-	@Async("callBackExecutor")
+	@Async("heartbeatExecutor")
 	@Transactional
 	public void saveHeartBeatCallbackLog(HeartBeatCallbackRequest callbackData) throws Exception {
 
@@ -97,6 +102,16 @@ public class DeviceCallbackService {
 		heartBeatLog.setLogDateTime(LocalDateTime.now());
 
 		heartbeatLogRepository.save(heartBeatLog);
+
+		Optional<Device> device = deviceRepository.findDeviceByDeviceKey(callbackData.getDeviceKey());
+		if (device.isPresent()) {
+			Device deviceEntity = device.get();
+			deviceEntity.setLastHeartbeatTime(CommonUtil.validString(callbackData.getTime())
+					? CommonUtil.convertMilliSecondToLocalDateTime(callbackData.getTime())
+					: LocalDateTime.now());
+
+			deviceRepository.save(deviceEntity);
+		}
 	}
 
 }

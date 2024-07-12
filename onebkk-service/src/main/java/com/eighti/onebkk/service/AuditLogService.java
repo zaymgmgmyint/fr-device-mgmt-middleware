@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.eighti.onebkk.dto.IdentifyLogDto;
-import com.eighti.onebkk.dto.request.IdentifyAuditLogRequest;
+import com.eighti.onebkk.dto.api.request.IdentifyAuditLogRequest;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.IdentifyLog;
 import com.eighti.onebkk.entity.User;

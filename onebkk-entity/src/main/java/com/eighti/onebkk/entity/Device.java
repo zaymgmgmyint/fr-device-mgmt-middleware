@@ -1,6 +1,7 @@
 package com.eighti.onebkk.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,4 +44,7 @@ public class Device extends BaseEntity implements Serializable {
 
 	@Column(name = "status")
 	private Integer status;
+	
+	@Column(name = "last_heartbeat_time")
+	private LocalDateTime lastHeartbeatTime;
 }

@@ -1,4 +1,4 @@
-package com.eighti.onebkk.dto.response;
+package com.eighti.onebkk.dto.api.response;
 
 public class IdentifyAuditLogResponse {
 

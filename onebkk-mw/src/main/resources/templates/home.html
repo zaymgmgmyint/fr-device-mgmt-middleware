@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Device Management</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		.full-height {
+			height: 100vh;
+		}
+
+		.centered {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		footer {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			height: 100px;
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container-fluid">
+
+
+		<nav class="navbar bg-body-tertiary">
+			<div class="container-fluid">
+				<a class="navbar-brand">One BKK</a>
+				<form class="d-flex" role="search">
+					<button id="sync" class="btn btn-outline-success" type="submit">Sync</button>
+				</form>
+			</div>
+		</nav>
+
+
+
+		<div class="content-wrapper mt-5">
+
+			<section class="content-header">
+				<div class="container-fluid">
+					<div class="row mb-2">
+						<div class="col-sm-6">
+							<h1>Devices</h1>
+						</div>
+						<div class="col-sm-6">
+							<ol class="breadcrumb float-sm-right">
+								<li class="breadcrumb-item">Devices</li>
+								<li class="breadcrumb-item"><a th:href="@{/logout}">Logout</a></li>
+							</ol>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="content">
+
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">Devices</h3>
+					</div>
+					<div class="card-body p-0">
+						<table class="table table-striped projects">
+							<thead>
+								<tr>
+									<th style="width: 1%">
+										#
+									</th>
+									<th style="width: 15%">
+										Device Name
+									</th>
+									<th style="width: 15%">
+										Device Key
+									</th>
+									<th style="width: 20%">
+										Device IP
+									</th>
+									<th class="text-center">
+										Status
+									</th>
+									<th style="width: 15%">
+										Last Heartbeat Time
+									</th>
+									<th style="width: 20%">
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+
+								<tr th:each="device : ${devices}">
+									<td>
+										#
+									</td>
+									<td>
+										<a th:text="${device.deviceName}">
+										</a>
+									</td>
+									<td>
+										<span th:text="${device.deviceKey}"></span>
+									</td>
+									<td>
+										<span th:text="${device.deviceIp}"></span>
+									</td>
+
+									<td class="text-center">
+										<span
+											th:classappend="${device.deviceStatus eq 1} ? 'badge text-bg-success' : 'badge text-bg-secondary'"
+											class="">Online</span>
+									</td>
+
+									<td>
+										<span th:text="${device.lastHeartbeatTime}"></span>
+									</td>
+									<td class="text-right">
+										<a class="btn btn-outline-primary btn-sm" href="#">
+											<i class="fas fa-folder">
+											</i>
+											View
+										</a>
+										<a class="btn btn-outline-success btn-sm" href="#">
+											<i class="fas fa-pencil-alt">
+											</i>
+											Edit
+										</a>
+										<a class="btn btn-outline-danger btn-sm" href="#">
+											<i class="fas fa-trash">
+											</i>
+											Delete
+										</a>
+									</td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+
+			</section>
+
+		</div>
+
+
+		<footer class="py-3 my-4 footer">
+			<ul class="nav justify-content-center border-bottom pb-3 mb-3">
+				<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
+				<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
+				<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
+				<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
+				<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
+			</ul>
+			<p class="text-center text-body-secondary">© 2024 One BKK. All rights reserved.</p>
+		</footer>
+	</div>
+
+
+
+	<script th:src="@{/js/jquery.min.js}"></script>
+	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+	<script>
+		$(document).ready(function () {
+			setInterval(function () {
+				window.location.reload(true);
+			}, 60000);// 60000 milliseconds = 1 minute
+			
+			4("#sync").click(function () {
+				window.location.reload(true);
+			});
+		});
+	</script>
+</body>
+
+</html>
