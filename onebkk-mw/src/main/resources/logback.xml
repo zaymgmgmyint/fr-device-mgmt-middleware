@@ -34,5 +34,5 @@
 		level="error" /> -->
 	<logger name="org.springframework.web" level="debug" />
 	<logger name="org.hibernate.SQL" level="debug" />
-	<logger name="com.eighti.onebkk" level="debug" />
+	<logger name="com.eighti.onebkk" level="info" />
 </configuration>

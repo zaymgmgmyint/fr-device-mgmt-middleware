@@ -1,13 +1,16 @@
 package com.eighti.onebkk.utils;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
@@ -179,5 +182,14 @@ public class CommonUtil {
 			LOG.error("changeStringToDate() >>> Invalid date time format. Please use YYYY-MM-DD HH:mm:ss format.");
 			return null;
 		}
+	}
+
+	public static String convertImageToBase64(String imagePath) throws Exception {
+		String base64String = "";
+		File file = new File(imagePath);
+		byte[] imagesBytes = Files.readAllBytes(file.toPath());
+		base64String = Base64.getEncoder().encodeToString(imagesBytes);
+
+		return base64String;
 	}
 }

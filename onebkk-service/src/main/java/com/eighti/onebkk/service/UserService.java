@@ -42,6 +42,9 @@ public class UserService {
 	@Value("${excel.file.path}")
 	private String EXCEL_FILE_PATH;
 
+	@Value("${image.file.path}")
+	private String IMAGE_FILE_PATH;
+
 	private static final DateTimeFormatter formatter = DateTimeFormatter
 			.ofPattern(DateConstant.DATE_FORMAT_yyyy_mm_dd_HHmmss);
 
@@ -108,7 +111,22 @@ public class UserService {
 				user.setUserTag(row.getCell(3).getStringCellValue());
 
 				user.setFrCardNumber(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : "");
-				user.setFrImageId(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "");
+
+				// TODO get user image path and change base 64 string
+				if (CommonUtil.validString(row.getCell(5).getStringCellValue())) {
+					String imagePath = IMAGE_FILE_PATH + "/" + row.getCell(5).getStringCellValue();
+					String base64String = "";
+
+					try {
+						base64String = CommonUtil.convertImageToBase64(imagePath);
+					} catch (Exception e) {
+						e.printStackTrace();
+						LOG.error("Exception occurred while converting image to base64 string for user: "
+								+ user.getUserId());
+						LOG.error("Exception occurred while converting image to base64 string: " + e.getMessage());
+					}
+					user.setFrImageId(base64String);
+				}
 
 				user.setUserCreatedDate(LocalDateTime.parse(row.getCell(6).getStringCellValue(), formatter));
 				user.setUserLastModifiedDate(LocalDateTime.parse(row.getCell(7).getStringCellValue(), formatter));
@@ -291,7 +309,8 @@ public class UserService {
 
 	private List<Device> getAllDevices() {
 		List<Device> devices = deviceRepository.findByStatus(1);
-		// devices = devices.stream().filter(device -> device.getStatus() != null && device.getStatus() == 1).toList();
+		// devices = devices.stream().filter(device -> device.getStatus() != null &&
+		// device.getStatus() == 1).toList();
 		return CommonUtil.validList(devices) ? devices : new ArrayList<Device>();
 
 	}
