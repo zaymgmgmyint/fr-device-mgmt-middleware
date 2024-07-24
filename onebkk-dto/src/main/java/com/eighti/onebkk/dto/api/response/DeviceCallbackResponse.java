@@ -23,6 +23,8 @@ public class DeviceCallbackResponse implements Serializable {
 	private String msg;
 	private String code;
 	private Data data;
+	
+	private String deviceName;
 
 	@Getter
 	@Setter

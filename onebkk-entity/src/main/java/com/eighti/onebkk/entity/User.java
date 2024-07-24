@@ -24,6 +24,12 @@ public class User extends BaseEntity implements Serializable {
 	@Column(name = "user_id")
 	private String userId;
 
+	@Column(name = "first_name")
+	private String firstName;
+
+	@Column(name = "last_name")
+	private String lastName;
+
 	@Column(name = "user_name")
 	private String userName;
 
@@ -48,10 +54,18 @@ public class User extends BaseEntity implements Serializable {
 	@Column(name = "permission_type")
 	private Integer permissionType;
 
+	@Column(name = "companny")
+	private String companny;
+
+	@Column(name = "baseLocation")
+	private String baseLocation;
+
 	@Column(name = "data_synced")
 	private Integer dataSynced;
 
 	@Column(name = "synced_datetime")
 	private LocalDateTime syncedDatetime;
 
+	@Column(name = "status")
+	private Integer status;
 }

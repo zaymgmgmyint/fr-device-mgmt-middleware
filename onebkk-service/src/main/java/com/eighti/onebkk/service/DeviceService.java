@@ -19,6 +19,7 @@ import com.eighti.onebkk.dto.DeviceDto;
 import com.eighti.onebkk.dto.api.response.DeviceResponse;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.repository.DeviceRepository;
+import com.eighti.onebkk.utils.CommonStatus;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.DateConstant;
 import com.eighti.onebkk.utils.device.common.DeviceInterfaceAPIConstant;
@@ -53,7 +54,7 @@ public class DeviceService {
 			dto.setDeviceKey(device.getDeviceKey());
 			dto.setDeviceIp(device.getDeviceIp());
 			dto.setDeviceStatus(device.getDeviceStatus());
-			dto.setLastHeartbeatTime(device.getLastHeartbeatTime().format(formatter));
+			dto.setLastHeartbeatTime(device.getLastHeartbeatTime() != null ? device.getLastHeartbeatTime().format(formatter) : "");
 
 			dataList.add(dto);
 		});
@@ -65,7 +66,7 @@ public class DeviceService {
 		LOG.info("updateDeviceStatusOnlineOrOffline() >>> Executing start");
 		List<Device> devices = deviceRepository.findAll();
 
-		devices.forEach(device -> {
+		devices.stream().filter(device -> device.getStatus() == CommonStatus.ACTIVE.getCode()).forEach(device -> {
 			checkFRDeviceIsOnlineOrOffline(device);
 		});
 
@@ -91,7 +92,7 @@ public class DeviceService {
 				LOG.info("checkFRDeviceIsOnlineOrOffline() >>> Response status code: " + response.getStatusCode());
 				LOG.info("checkFRDeviceIsOnlineOrOffline() >>> Response body: " + response.getBody().toString());
 				DeviceResponse deviceResposne = response.getBody();
-				// TODO Update the device status based on isDeviceOline
+				// Update the device status based on isDeviceOline
 				if (deviceResposne.getSuccess() && !CommonUtil.isEmpty(deviceResposne.getData())) {
 					device.setDeviceStatus(1);
 				} else {

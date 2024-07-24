@@ -46,4 +46,7 @@ public class PersonnelDto implements Serializable {
 	private String deviceName;
 	private String deviceIp;
 	private String devicePassword;
+	
+	// User deleted
+	private boolean userDeleted;
 }

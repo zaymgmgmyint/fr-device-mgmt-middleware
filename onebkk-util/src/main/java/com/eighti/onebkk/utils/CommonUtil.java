@@ -146,19 +146,19 @@ public class CommonUtil {
 	 * Convert the given string into the local date format.
 	 * 
 	 * @param dateStr date string
-	 * @return the date formatted by yyyy-MM-dd
+	 * @return the date formatted by yyyy-MM-dd HH:mm
 	 */
-	public static LocalDate changeStringToDate(String dateStr) {
+	public static LocalDateTime changeStringToDate(String dateStr) {
 		// Define the expected date format (can be adjusted based on your input format)
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateConstant.DATE_FORMAT_yyyymmdd);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateConstant.DATE_FORMAT_yyyymmdd_HHmm);
 		try {
 			// Attempt to parse the string using the formatter
-			LocalDate dateTime = LocalDate.parse(dateStr, formatter);
+			LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter);
 			return dateTime;
 		} catch (Exception e) {
 			e.printStackTrace();
 			// Handle parsing exceptions (e.g., invalid format, invalid date)
-			LOG.error("changeStringToDate() >>> Invalid date format. Please use YYYY-MM-DD format.");
+			LOG.error("changeStringToDate() >>> Invalid date format. Please use YYYY-MM-DD HH:mm format.");
 			return null;
 		}
 	}

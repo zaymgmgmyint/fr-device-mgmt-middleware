@@ -182,14 +182,14 @@
 			</activation>
 			<properties>
 				<environment>development</environment>
-				<war.file.name>onebkk-middleware</war.file.name>
+				<war.file.name>onebkk-api</war.file.name>
 			</properties>
 		</profile>
 		<profile>
 			<id>uat</id>
 			<properties>
 				<environment>uat</environment>
-				<war.file.name>onebkk-middleware</war.file.name>
+				<war.file.name>onebkk-api</war.file.name>
 			</properties>
 		</profile>
 		<profile>

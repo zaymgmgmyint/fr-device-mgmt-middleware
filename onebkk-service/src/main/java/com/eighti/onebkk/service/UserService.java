@@ -28,9 +28,11 @@ import com.eighti.onebkk.repository.DeviceRepository;
 import com.eighti.onebkk.repository.SyncTimeRepository;
 import com.eighti.onebkk.repository.UserDeviceRepository;
 import com.eighti.onebkk.repository.UserRepository;
+import com.eighti.onebkk.utils.CommonStatus;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.DateConstant;
 import com.eighti.onebkk.utils.ImageResizer;
+import com.eighti.onebkk.utils.device.common.DeviceSyncStatus;
 
 import jakarta.transaction.Transactional;
 
@@ -91,8 +93,8 @@ public class UserService {
 
 				// Check requirement fields
 				if (!CommonUtil.validString(row.getCell(0).getStringCellValue())
-						&& !CommonUtil.validString(row.getCell(4).getStringCellValue())
-						&& !CommonUtil.validString(row.getCell(5).getStringCellValue())) {
+						&& !CommonUtil.validString(row.getCell(7).getStringCellValue())
+						&& !CommonUtil.validString(row.getCell(8).getStringCellValue())) {
 					LOG.info("syncUsersToFRDevices() >>> User data is invalid: row number: " + row.getRowNum());
 					continue;
 				}
@@ -106,15 +108,27 @@ public class UserService {
 
 				// Get the users from excel template
 				user.setUserId(row.getCell(0).getStringCellValue());
-				user.setUserName(row.getCell(1).getStringCellValue());
-				user.setUserPhoneNumber(row.getCell(2).getStringCellValue());
+				String firstName = CommonUtil.validString(row.getCell(1).getStringCellValue())
+						? row.getCell(1).getStringCellValue()
+						: "";
+				String lastName = CommonUtil.validString(row.getCell(2).getStringCellValue())
+						? row.getCell(2).getStringCellValue()
+						: "";
+
+				user.setFirstName(firstName);
+				user.setLastName(lastName);
+				user.setUserName(firstName + " " + lastName);
+
 				user.setUserTag(row.getCell(3).getStringCellValue());
+				user.setCompanny(row.getCell(4).getStringCellValue());
+				user.setBaseLocation(row.getCell(5).getStringCellValue());
 
-				user.setFrCardNumber(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : "");
+				user.setUserPhoneNumber(row.getCell(6).getStringCellValue());
+				user.setFrCardNumber(row.getCell(7) != null ? row.getCell(7).getStringCellValue() : "");
 
-				// TODO get user image path and change base 64 string
-				if (CommonUtil.validString(row.getCell(5).getStringCellValue())) {
-					String imagePath = IMAGE_FILE_PATH + "/" + row.getCell(5).getStringCellValue();
+				// Get user image path and change base 64 string
+				if (CommonUtil.validString(row.getCell(8).getStringCellValue())) {
+					String imagePath = IMAGE_FILE_PATH + "/" + row.getCell(8).getStringCellValue();
 					String base64String = "";
 
 					try {
@@ -128,8 +142,15 @@ public class UserService {
 					user.setFrImageId(base64String);
 				}
 
-				user.setUserCreatedDate(LocalDateTime.parse(row.getCell(6).getStringCellValue(), formatter));
-				user.setUserLastModifiedDate(LocalDateTime.parse(row.getCell(7).getStringCellValue(), formatter));
+				int status = CommonUtil.validString(row.getCell(9).getStringCellValue())
+						? row.getCell(9).getStringCellValue().equalsIgnoreCase("No") ? CommonStatus.ACTIVE.getCode()
+								: CommonStatus.INACTIVE.getCode()
+						: CommonStatus.INACTIVE.getCode();
+
+				user.setStatus(status);
+
+				user.setUserCreatedDate(LocalDateTime.parse(row.getCell(10).getStringCellValue(), formatter));
+				user.setUserLastModifiedDate(LocalDateTime.parse(row.getCell(11).getStringCellValue(), formatter));
 
 				user.setSyncedDatetime(LocalDateTime.now());
 
@@ -186,19 +207,36 @@ public class UserService {
 					// Register the users to the User Device and FR Device
 					PersonnelDto personnelDto = prepareUserAndDeviceData(userDeviceEntity);
 					PersonnelDto personnelResponse = null;
-					if (userDeviceEntity.getDataSynced() != null && userDeviceEntity.getDataSynced() != 1) {
-						// Register the user to the FR device
-						personnelResponse = deviceInterfaceService.registerFaceScannerTerminal(personnelDto);
+					if (userDeviceEntity.getDataSynced() != null
+							&& userDeviceEntity.getDataSynced() != DeviceSyncStatus.SYNC.getCode()) {
+
+						/// Register the user to the FR device
+						personnelResponse = deviceInterfaceService.registerPersonnelToFaceScannerTerminal(personnelDto);
 
 					} else {
-						// Update the user to the FR device
-						personnelResponse = deviceInterfaceService.updateFaceScannerTerminal(personnelDto);
+						// TODO User status is inactive, delete the user from FR device
+						if (CommonStatus.INACTIVE.getCode() == user.get().getStatus()) {
+							// Delete the user from FR device
+							personnelResponse = deviceInterfaceService
+									.deletePersonnelFromFaceScannerTerminal(personnelDto);
+						} else {
+							// Update the user to the FR device
+							personnelResponse = deviceInterfaceService.updatePersonnelToFaceScannerTerminal(personnelDto);
+						}
 					}
 
 					// update sync status and date_time base on API response
-					if (personnelResponse != null && CommonUtil.validString(personnelResponse.getResponseCode())) {
+
+					if (personnelResponse != null && personnelResponse.isUserDeleted()) {
+						// TODO Delete the user device data
+						userDeviceRepository.delete(userDeviceEntity);
+
+					} else if (personnelResponse != null && !personnelResponse.isUserDeleted()
+							&& CommonUtil.validString(personnelResponse.getResponseCode())) {
+
 						LOG.info("syncUsersToFRDevices() >>> Personnel response: "
 								+ personnelResponse.getResponseMessage());
+
 						userDeviceEntity.setDataSynced(personnelResponse.getDataSynced());
 						userDeviceEntity.setSyncedDatetime(LocalDateTime.now());
 						userDeviceEntity.setResponseCode(personnelResponse.getResponseCode());

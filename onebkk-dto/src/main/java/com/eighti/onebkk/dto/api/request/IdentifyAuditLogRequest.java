@@ -14,6 +14,10 @@ public class IdentifyAuditLogRequest implements Serializable {
 
 	private static final long serialVersionUID = 564500753769139428L;
 
+	private String authType; // Face, Card, QR, and Finger print
+
+	private int authSuccessType; // 0 is All, 1 is Success, and 2 is Failure
+
 	private String fromDate;
 
 	private String toDate;

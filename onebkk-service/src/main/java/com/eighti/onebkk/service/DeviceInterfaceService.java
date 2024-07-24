@@ -25,9 +25,11 @@ import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.InterfaceSetting;
 import com.eighti.onebkk.repository.DeviceRepository;
 import com.eighti.onebkk.repository.InterfaceSettingRepository;
+import com.eighti.onebkk.utils.CommonStatus;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.device.common.DeviceInterfaceAPIConstant;
 import com.eighti.onebkk.utils.device.common.DeviceInterfaceConstant;
+import com.eighti.onebkk.utils.device.common.DeviceResponseStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -58,8 +60,8 @@ public class DeviceInterfaceService {
 	 * @return the personnel object with response data (status, message)
 	 * @throws Exception
 	 */
-	public PersonnelDto registerFaceScannerTerminal(PersonnelDto personnelDto) {
-		LOG.info("registerFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName()
+	public PersonnelDto registerPersonnelToFaceScannerTerminal(PersonnelDto personnelDto) {
+		LOG.info("registerPersonnelToFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName()
 				+ ", User id: " + personnelDto.getUserId());
 		try {
 
@@ -86,7 +88,7 @@ public class DeviceInterfaceService {
 			String url = personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_CREATE);
 
 			// Update response type to PersonnelResponse and handle response object
-			LOG.info("registerFaceScannerTerminal() >>> Invoking face scanner terminal (register) ...");
+			LOG.info("registerPersonnelToFaceScannerTerminal() >>> Invoking face scanner terminal (register) ...");
 			ResponseEntity<PersonnelResponse> response = restTemplate.postForEntity(url, entity,
 					PersonnelResponse.class);
 
@@ -94,7 +96,7 @@ public class DeviceInterfaceService {
 			PersonnelResponse personnelResponse = response.getBody();
 			if (response.getStatusCode() == HttpStatus.OK) {
 				// Success scenario, access data from personnelResponse
-				LOG.info("registerFaceScannerTerminal() >>> FR device register response: "
+				LOG.info("registerPersonnelToFaceScannerTerminal() >>> FR device register response: "
 						+ personnelResponse.toString());
 				LOG.info("Personnel register successfully: " + personnelResponse.getMsg());
 			} else {
@@ -115,8 +117,9 @@ public class DeviceInterfaceService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOG.info("registerFaceScannerTerminal() >>> ERROR: Face scanner device: " + personnelDto.getDeviceIp());
-			LOG.error("registerFaceScannerTerminal() >>> ERROR: " + e.getMessage(), e);
+			LOG.info("registerPersonnelToFaceScannerTerminal() >>> ERROR: Face scanner device: "
+					+ personnelDto.getDeviceIp());
+			LOG.error("registerPersonnelToFaceScannerTerminal() >>> ERROR: " + e.getMessage(), e);
 		}
 
 		return personnelDto;
@@ -128,9 +131,9 @@ public class DeviceInterfaceService {
 	 * @param personnelDto the personnel DTO object
 	 * @return the personnel object with response data (status, message)
 	 */
-	public PersonnelDto updateFaceScannerTerminal(PersonnelDto personnelDto) {
-		LOG.info("updateFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName() + ", User id: "
-				+ personnelDto.getUserId());
+	public PersonnelDto updatePersonnelToFaceScannerTerminal(PersonnelDto personnelDto) {
+		LOG.info("updatePersonnelToFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName()
+				+ ", User id: " + personnelDto.getUserId());
 		try {
 
 			// Prepare request body with JSON data
@@ -156,7 +159,7 @@ public class DeviceInterfaceService {
 			String url = personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_UPDATE);
 
 			// Update response type to PersonnelResponse and handle response object
-			LOG.info("updateFaceScannerTerminal() >>> Invoking face scanner terminal (update) ...");
+			LOG.info("updatePersonnelToFaceScannerTerminal() >>> Invoking face scanner terminal (update) ...");
 			ResponseEntity<PersonnelResponse> response = restTemplate.postForEntity(url, entity,
 					PersonnelResponse.class);
 
@@ -164,7 +167,8 @@ public class DeviceInterfaceService {
 			PersonnelResponse personnelResponse = response.getBody();
 			if (response.getStatusCode() == HttpStatus.OK) {
 				// Success scenario, access data from personnelResponse
-				LOG.info("updateFaceScannerTerminal() >>> FR device update response: " + personnelResponse.toString());
+				LOG.info("updatePersonnelToFaceScannerTerminal() >>> FR device update response: "
+						+ personnelResponse.toString());
 				System.out.println("Personnel updated successfully: " + personnelResponse.getMsg());
 			} else {
 				// Error scenario, handle error based on status code and response body
@@ -184,8 +188,83 @@ public class DeviceInterfaceService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOG.info("updateFaceScannerTerminal() >>> ERROR: Face scanner device: " + personnelDto.getDeviceIp());
-			LOG.error("updateFaceScannerTerminal() >>> ERROR: " + e.getMessage(), e);
+			LOG.info("updatePersonnelToFaceScannerTerminal() >>> ERROR: Face scanner device: "
+					+ personnelDto.getDeviceIp());
+			LOG.error("updatePersonnelToFaceScannerTerminal() >>> ERROR: " + e.getMessage(), e);
+		}
+
+		return personnelDto;
+	}
+
+	/**
+	 * Delete the personnel data from the device interface
+	 * 
+	 * @param personnelDto the personnel DTO object
+	 * @return the personnel object with response data (status, message)
+	 */
+	public PersonnelDto deletePersonnelFromFaceScannerTerminal(PersonnelDto personnelDto) {
+		LOG.info("deletePersonnelFromFaceScannerTerminal() >>> Face scanner device: " + personnelDto.getDeviceName()
+				+ ", User id: " + personnelDto.getUserId());
+		try {
+
+			// Prepare request body with JSON data
+			Map<String, Object> requestBody = new HashMap<>();
+
+			requestBody.put("pass", personnelDto.getDevicePassword());
+			requestBody.put("id", personnelDto.getUserId());
+
+			String jsonBody = new ObjectMapper().writeValueAsString(requestBody);
+
+			// Create request headers
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+			HttpEntity<String> entity = new HttpEntity<String>(jsonBody, headers);
+
+			// Create the POST request
+			String url = personnelDto.getDeviceIp().concat(DeviceInterfaceAPIConstant.PERSON_DELETE);
+
+			// Update response type to PersonnelResponse and handle response object
+			LOG.info("deletePersonnelFromFaceScannerTerminal() >>> Invoking face scanner terminal (delete) ...");
+			ResponseEntity<PersonnelResponse> response = restTemplate.postForEntity(url, entity,
+					PersonnelResponse.class);
+
+			// Process the response
+			PersonnelResponse personnelResponse = response.getBody();
+			if (response.getStatusCode() == HttpStatus.OK) {
+				// Success scenario, access data from personnelResponse
+				LOG.info("deletePersonnelFromFaceScannerTerminal() >>> delete personnel response: "
+						+ personnelResponse.toString());
+				System.out.println("Personnel delete successfully: " + personnelResponse.getMsg());
+			} else {
+				// Error scenario, handle error based on status code and response body
+				System.out.println("Error deleting personnel: " + response.getStatusCode());
+			}
+
+			// Print the response
+			if (personnelResponse != null) {
+				personnelDto.setResponseCode(personnelResponse.getCode());
+				personnelDto.setResponseMessage(personnelResponse.getMsg());
+				personnelDto.setDataSynced(personnelResponse.getSuccess() ? DeviceResponseStatus.SUCCESS.getCode()
+						: DeviceResponseStatus.FAIL.getCode());
+
+				if (personnelResponse.getSuccess()
+						&& DeviceResponseStatus.SUCCESS.getCode() == personnelResponse.getResult()) {
+					personnelDto.setUserDeleted(true);
+				} else {
+					personnelDto.setUserDeleted(false);
+				}
+
+				LOG.info("Response status code: " + personnelResponse.getCode());
+				LOG.info("Response message: " + personnelResponse.getMsg());
+				LOG.info("Response status: " + personnelResponse.getSuccess());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.info("deletePersonnelFromFaceScannerTerminal() >>> ERROR: Face scanner device: "
+					+ personnelDto.getDeviceIp());
+			LOG.error("deletePersonnelFromFaceScannerTerminal() >>> ERROR: " + e.getMessage(), e);
 		}
 
 		return personnelDto;
@@ -200,7 +279,7 @@ public class DeviceInterfaceService {
 		List<IdentifyCallbackResponse> responseList = new ArrayList<IdentifyCallbackResponse>();
 		IdentifyCallbackResponse identifyResponse = null;
 
-		List<Device> deviceList = deviceRepository.findByStatus(1);
+		List<Device> deviceList = deviceRepository.findByStatus(CommonStatus.ACTIVE.getCode());
 
 		Map<String, String> requestBody = new HashMap<String, String>();
 		Optional<InterfaceSetting> interfaceSettingOptional = interfaceSettingRepository
@@ -352,6 +431,8 @@ public class DeviceInterfaceService {
 					LOG.info("getCallbackAddress() >>> Response body: " + response.getBody().toString());
 
 					deviceCallbackResponse = response.getBody();
+					
+					deviceCallbackResponse.setDeviceName(device.getDeviceName());
 					heartBeatCallbackDataList.add(deviceCallbackResponse);
 				} else {
 					LOG.info("getCallbackAddress() >>> Response data is NULL");
@@ -366,7 +447,7 @@ public class DeviceInterfaceService {
 
 		return heartBeatCallbackDataList;
 	}
-	
+
 	private static Map<String, String> createPersonJsonObject(PersonnelDto p) {
 		Map<String, String> person = new HashMap<>();
 

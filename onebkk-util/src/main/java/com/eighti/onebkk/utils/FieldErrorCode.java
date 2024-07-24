@@ -2,8 +2,8 @@ package com.eighti.onebkk.utils;
 
 public enum FieldErrorCode {
 
-	SUCCESS(200, "Success"), GENERAL(500, "General application exception occurred while processing user request."),
-	FAIL(-1, ""), MULTIPLE_ERROR(1000, "Invalid input values."),
+	SUCCESS(200, "Success"), GENERAL(500, "General application exceptions occurred while processing user requests."),
+	MULTIPLE_ERROR(400, "Bad request, invalid input values."),
 
 	;
 

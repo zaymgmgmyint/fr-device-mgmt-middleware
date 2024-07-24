@@ -24,7 +24,7 @@ public class SchedulerTask {
 		this.deviceService = deviceService;
 	}
 
-	@Scheduled(fixedRate = usersToFRDevicesFixedRate, initialDelay = 10000)
+	//@Scheduled(fixedRate = usersToFRDevicesFixedRate, initialDelay = 10000)
 	public void syncUsersToFRDevicesTask() {
 		LOG.info("\n===== START Perform Data Synchronizing =====");
 

@@ -33,12 +33,11 @@
 
 	<div class="container-fluid">
 
-
-		<nav class="navbar bg-body-tertiary">
+	<nav class="navbar bg-body-tertiary">
 			<div class="container-fluid">
 				<a class="navbar-brand">One BKK</a>
 				<form class="d-flex" role="search">
-					<button id="sync" class="btn btn-outline-success" type="submit">Sync</button>
+					<button id="sync" class="btn btn-outline-success" type="button">Refresh</button>
 				</form>
 			</div>
 		</nav>
@@ -173,7 +172,7 @@
 				window.location.reload(true);
 			}, 60000);// 60000 milliseconds = 1 minute
 			
-			4("#sync").click(function () {
+			$("#sync").click(function () {
 				window.location.reload(true);
 			});
 		});
