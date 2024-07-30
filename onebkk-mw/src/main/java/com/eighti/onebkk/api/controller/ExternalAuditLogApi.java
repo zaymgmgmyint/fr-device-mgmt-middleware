@@ -1,7 +1,5 @@
 package com.eighti.onebkk.api.controller;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eighti.onebkk.dto.IdentifyLogDto;
+import com.eighti.onebkk.dto.PaginatedResponse;
 import com.eighti.onebkk.dto.api.request.IdentifyAuditLogRequest;
 import com.eighti.onebkk.response.Response;
 import com.eighti.onebkk.service.AuditLogService;
@@ -33,15 +32,15 @@ public class ExternalAuditLogApi {
 
 	// TODO Get the identify audit log
 	@PostMapping("/identify")
-	public Response<List<IdentifyLogDto>> searchIdentifyAuditLog(@RequestBody IdentifyAuditLogRequest requestData,
-			HttpServletRequest httpRequest) {
+	public Response<PaginatedResponse<IdentifyLogDto>> searchIdentifyAuditLog(
+			@RequestBody IdentifyAuditLogRequest requestData, HttpServletRequest httpRequest) {
 
-		Response<List<IdentifyLogDto>> response = new Response<List<IdentifyLogDto>>();
+		Response<PaginatedResponse<IdentifyLogDto>> response = new Response<PaginatedResponse<IdentifyLogDto>>();
 
 		try {
 
 			// TODO Get the identify audit logs based on search criteria
-			List<IdentifyLogDto> resultList = auditLogService.searchIdentifyLogList(requestData);
+			PaginatedResponse<IdentifyLogDto> resultList = auditLogService.searchIdentifyLogList(requestData);
 
 			response.setData(resultList);
 		} catch (Exception e) {

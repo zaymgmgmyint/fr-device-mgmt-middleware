@@ -11,11 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.eighti.onebkk.dto.IdentifyLogDto;
+import com.eighti.onebkk.dto.PaginatedResponse;
 import com.eighti.onebkk.dto.api.request.IdentifyAuditLogRequest;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.IdentifyLog;
 import com.eighti.onebkk.entity.User;
 import com.eighti.onebkk.repository.DeviceRepository;
+import com.eighti.onebkk.repository.IdentifyLogCustomRepository;
 import com.eighti.onebkk.repository.IdentifyLogRepository;
 import com.eighti.onebkk.repository.UserRepository;
 import com.eighti.onebkk.utils.CommonUtil;
@@ -33,17 +35,21 @@ public class AuditLogService {
 	private final IdentifyLogRepository identifyLogRepository;
 	private final UserRepository userRepository;
 	private final DeviceRepository deviceRepository;
+	private final IdentifyLogCustomRepository identifyLogCustomRepository;
 
 	public AuditLogService(IdentifyLogRepository identifyLogRepository, UserRepository userRepository,
-			DeviceRepository deviceRepository) {
+			DeviceRepository deviceRepository, IdentifyLogCustomRepository identifyLogCustomRepository) {
 		this.identifyLogRepository = identifyLogRepository;
 		this.userRepository = userRepository;
 		this.deviceRepository = deviceRepository;
+		this.identifyLogCustomRepository = identifyLogCustomRepository;
 	}
 
 	// Get the identify log data
-	public List<IdentifyLogDto> searchIdentifyLogList(IdentifyAuditLogRequest requestData) throws Exception {
-		LOG.info("searchIdentifyLogList() >>> Request data: " + requestData.toString());;
+	public PaginatedResponse<IdentifyLogDto> searchIdentifyLogList(IdentifyAuditLogRequest requestData)
+			throws Exception {
+		LOG.info("searchIdentifyLogList() >>> Request data: " + requestData.toString());
+		;
 
 		List<IdentifyLogDto> dtoList = new ArrayList<IdentifyLogDto>();
 
@@ -57,17 +63,31 @@ public class AuditLogService {
 		// Convert millisecond to local data time
 		LocalDateTime fromDate = CommonUtil.validString(requestData.getFromDate())
 				? CommonUtil.changeStringToDate(requestData.getFromDate())
-				: LocalDateTime.now();
+				: null;
 
 		LocalDateTime toDate = CommonUtil.validString(requestData.getToDate())
 				? CommonUtil.changeStringToDate(requestData.getToDate())
-				: LocalDateTime.now();
-		
+				: null;
+
+		List<String> deviceKeys = CommonUtil.validList(requestData.getDeviceKeys()) ? requestData.getDeviceKeys()
+				: new ArrayList<String>();
+
+		Integer pageNo = CommonUtil.validInteger(requestData.getPage()) ? requestData.getPage() : 1;
+
 		// Retrieve the identify log data based on the search criteria
-		List<IdentifyLog> identifyLogs = CommonUtil.validList(requestData.getDeviceKeys())
-				? identifyLogRepository.findByLogDateTimeBetweenAndDeviceKeyIn(fromDate, toDate,
-						requestData.getDeviceKeys(), authTypes, authSuccessTypes)
-				: identifyLogRepository.findByLogDateTimeBetween(fromDate, toDate, authTypes, authSuccessTypes);
+
+		PaginatedResponse<IdentifyLog> identifyLogEntity = identifyLogCustomRepository.searchIdentifyLogs(fromDate,
+				toDate, requestData.getRole(), requestData.getCompany(), deviceKeys, authTypes, authSuccessTypes,
+				pageNo);
+
+		List<IdentifyLog> identifyLogs = (identifyLogEntity != null && identifyLogEntity.getData() != null)
+				? identifyLogEntity.getData()
+				: new ArrayList<IdentifyLog>();
+
+//		List<IdentifyLog> identifyLogs = CommonUtil.validList(requestData.getDeviceKeys())
+//				? identifyLogRepository.findByLogDateTimeBetweenAndDeviceKeyIn(fromDate, toDate,
+//						requestData.getDeviceKeys(), authTypes, authSuccessTypes)
+//				: identifyLogRepository.findByLogDateTimeBetween(fromDate, toDate, authTypes, authSuccessTypes);
 
 		// Loop through the identify log list
 		identifyLogs.forEach(log -> {
@@ -92,18 +112,18 @@ public class AuditLogService {
 				identifyLogDto.setFirstName(user.getFirstName());
 				identifyLogDto.setLastName(user.getLastName());
 				identifyLogDto.setUserRole(user.getUserTag());
-				identifyLogDto.setUserCompany(user.getCompanny());
+				identifyLogDto.setUserCompany(user.getCompany());
 				identifyLogDto.setUserBaseLocation(user.getBaseLocation());
-			}else if(DeviceCodeConstant.IdentifyTypeEnum.NO_1.getCode().equals(log.getIdentifyType())){
+			} else if (DeviceCodeConstant.IdentifyTypeEnum.NO_1.getCode().equals(log.getIdentifyType())) {
 				identifyLogDto.setUserId(log.getPersonId());
 				identifyLogDto.setFirstName("UnRegistered");
-			}else {
+			} else {
 				identifyLogDto.setUserId(log.getPersonId());
-//				identifyLogDto.setFirstName("");
-//				identifyLogDto.setLastName("");
-//				identifyLogDto.setUserRole("");
-//				identifyLogDto.setUserCompany("");
-//				identifyLogDto.setUserBaseLocation("");
+				identifyLogDto.setFirstName("");
+				identifyLogDto.setLastName("");
+				identifyLogDto.setUserRole("");
+				identifyLogDto.setUserCompany("");
+				identifyLogDto.setUserBaseLocation("");
 			}
 
 			// Device information
@@ -112,7 +132,7 @@ public class AuditLogService {
 				identifyLogDto.setDeviceName(device.getDeviceName());
 				identifyLogDto.setDeviceKey(device.getDeviceKey());
 				identifyLogDto.setDeviceIp(device.getDeviceIp());
-			}else {
+			} else {
 				identifyLogDto.setDeviceName("UnRegistered");
 				identifyLogDto.setDeviceKey(log.getDeviceKey());
 				identifyLogDto.setDeviceIp(log.getIp());
@@ -138,7 +158,9 @@ public class AuditLogService {
 
 		});
 
-		return dtoList;
+		PaginatedResponse<IdentifyLogDto> dtoResponse = new PaginatedResponse<IdentifyLogDto>(
+				identifyLogEntity.getTotalRecords(), dtoList);
+		return dtoResponse;
 
 	}
 

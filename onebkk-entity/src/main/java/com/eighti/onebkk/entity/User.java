@@ -54,8 +54,8 @@ public class User extends BaseEntity implements Serializable {
 	@Column(name = "permission_type")
 	private Integer permissionType;
 
-	@Column(name = "companny")
-	private String companny;
+	@Column(name = "company")
+	private String company;
 
 	@Column(name = "baseLocation")
 	private String baseLocation;

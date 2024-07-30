@@ -120,7 +120,7 @@ public class UserService {
 				user.setUserName(firstName + " " + lastName);
 
 				user.setUserTag(row.getCell(3).getStringCellValue());
-				user.setCompanny(row.getCell(4).getStringCellValue());
+				user.setCompany(row.getCell(4).getStringCellValue());
 				user.setBaseLocation(row.getCell(5).getStringCellValue());
 
 				user.setUserPhoneNumber(row.getCell(6).getStringCellValue());
