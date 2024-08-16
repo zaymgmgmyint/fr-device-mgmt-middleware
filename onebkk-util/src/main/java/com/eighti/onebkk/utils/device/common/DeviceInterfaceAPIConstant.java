@@ -13,6 +13,10 @@ public class DeviceInterfaceAPIConstant {
 	public static final String PERSON_CREATE = "/person/create";
 	public static final String PERSON_UPDATE = "/person/update";
 	public static final String PERSON_DELETE = "/person/delete";
+	
+	
+	// Device
+	public static final String IDNETIFY_LOG_URL = "/newFindRecords";
 
 	
 }

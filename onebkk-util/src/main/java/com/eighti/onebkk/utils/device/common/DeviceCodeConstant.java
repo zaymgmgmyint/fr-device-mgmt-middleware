@@ -37,7 +37,7 @@ public class DeviceCodeConstant {
 	public enum ComparisonTypeEnum {
 
 		FACE_0("face_0 ", "Face recognition, and the person is within passtime", "FACE"),
-		FACE_1("face_0", "Face recognition, and the person is outside the passtime", "FACE"),
+		FACE_1("face_1", "Face recognition, and the person is outside the passtime", "FACE"),
 		FACE_2("face_2", "Face recognition/mask detection, and recognition failed/mask detection failed", "FACE"),
 
 		CARD_0("card_0", "swipe card identification, and the person is within the passtime authority time", "CARD"),
@@ -72,6 +72,7 @@ public class DeviceCodeConstant {
 			return ComparisonTypeEnum.UNKNOW.getMsg();
 		}
 	}
+	
 
 	@Getter
 	public enum IdentifyTypeEnum {
@@ -116,18 +117,20 @@ public class DeviceCodeConstant {
 	@Getter
 	public enum IdentifyPatternEnum {
 
-		NO_0("0", "Portrait verification"), NO_1("1", "Card & portrait verification (person card in one)"),
-		NO_2("2", "Witnesses comparison"), NO_3("3", "Card verification"),
-		NO_4("4", "Button to open the door (signal to open the door)"),
+		NO_0("0", "Portrait verification", "FACE"), NO_1("1", "Card & portrait verification (person card in one)", "CARD & FACE"),
+		NO_2("2", "Witnesses comparison", "FACE"), NO_3("3", "Card verification", "CARD"),
+		NO_4("4", "Button to open the door (signal to open the door)", "OPEN DOOR"),
 
-		UNKNOW("000", "Unknown");
+		UNKNOW("000", "Unknown", "Unknown");
 
 		private String code;
 		private String desc;
+		private String msg;
 
-		private IdentifyPatternEnum(String code, String desc) {
+		private IdentifyPatternEnum(String code, String desc, String msg) {
 			this.code = code;
 			this.desc = desc;
+			this.msg = msg;
 		}
 
 		public static String getDescriptionByCode(String code) {
@@ -137,6 +140,15 @@ public class DeviceCodeConstant {
 				}
 			}
 			return IdentifyPatternEnum.UNKNOW.getDesc();
+		}
+		
+		public static String getMsgByCode(String code) {
+			for (IdentifyPatternEnum type : IdentifyPatternEnum.values()) {
+				if (code.equals(type.getCode())) {
+					return type.getMsg();
+				}
+			}
+			return IdentifyPatternEnum.UNKNOW.getMsg();
 		}
 	}
 

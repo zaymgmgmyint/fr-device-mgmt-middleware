@@ -22,7 +22,7 @@ public class IdentifyLogCustomRepositoryImpl implements IdentifyLogCustomReposit
 
 	private static final Logger LOG = LoggerFactory.getLogger(IdentifyLogCustomRepositoryImpl.class);
 
-	private static final int BASE_PAGE_SIZE = 30;
+	private static final int BASE_PAGE_SIZE = 100;
 	private static final int PAGE_NO = 1;
 
 	@Autowired
@@ -39,12 +39,12 @@ public class IdentifyLogCustomRepositoryImpl implements IdentifyLogCustomReposit
 				" iLog.rec_type, iLog.time, iLog.dst_offset, iLog.passback_trigger_type, iLog.mask_state, iLog.work_code, iLog.attendance, iLog.type, iLog.log_datetime, iLog.log_time");
 
 		sqlBuilder.append(" FROM identify_log iLog");
-		sqlBuilder.append(" INNER JOIN user iUser ON iUser.user_id=iLog.person_id");
+		sqlBuilder.append(" LEFT JOIN user iUser ON iUser.user_id=iLog.person_id");
 		sqlBuilder.append(" WHERE 1=1");
 
 		StringBuilder countSqlBuilder = new StringBuilder();
 		countSqlBuilder.append("SELECT COUNT(iLog.id) FROM identify_log iLog");
-		countSqlBuilder.append(" INNER JOIN user iUser ON iUser.user_id=iLog.person_id");
+		countSqlBuilder.append(" LEFT JOIN user iUser ON iUser.user_id=iLog.person_id");
 		countSqlBuilder.append(" WHERE 1=1");
 
 		if (fromDate != null) {

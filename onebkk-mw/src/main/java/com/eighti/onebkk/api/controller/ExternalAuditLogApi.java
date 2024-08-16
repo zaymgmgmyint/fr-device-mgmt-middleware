@@ -30,7 +30,7 @@ public class ExternalAuditLogApi {
 		this.auditLogService = auditLogService;
 	}
 
-	// TODO Get the identify audit log
+	// Get the identify audit log
 	@PostMapping("/identify")
 	public Response<PaginatedResponse<IdentifyLogDto>> searchIdentifyAuditLog(
 			@RequestBody IdentifyAuditLogRequest requestData, HttpServletRequest httpRequest) {

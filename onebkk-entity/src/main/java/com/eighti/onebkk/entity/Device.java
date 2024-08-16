@@ -47,4 +47,7 @@ public class Device extends BaseEntity implements Serializable {
 	
 	@Column(name = "last_heartbeat_time")
 	private LocalDateTime lastHeartbeatTime;
+	
+	@Column(name = "last_fetch_time")
+	private LocalDateTime lastFetchTime;
 }

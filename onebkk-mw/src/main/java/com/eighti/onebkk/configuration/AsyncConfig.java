@@ -47,4 +47,16 @@ public class AsyncConfig {
 		return executor;
 	}
 
+	@Bean(name = "identifyLogExecutor")
+	Executor fetchIdentifyLogExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(5);
+		executor.setMaxPoolSize(10);
+		executor.setQueueCapacity(100);
+		executor.setThreadNamePrefix("IdentifyLog-");
+		executor.initialize();
+
+		return executor;
+	}
+
 }

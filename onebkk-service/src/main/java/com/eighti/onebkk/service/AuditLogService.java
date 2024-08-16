@@ -18,7 +18,6 @@ import com.eighti.onebkk.entity.IdentifyLog;
 import com.eighti.onebkk.entity.User;
 import com.eighti.onebkk.repository.DeviceRepository;
 import com.eighti.onebkk.repository.IdentifyLogCustomRepository;
-import com.eighti.onebkk.repository.IdentifyLogRepository;
 import com.eighti.onebkk.repository.UserRepository;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.DateConstant;
@@ -32,14 +31,12 @@ public class AuditLogService {
 	private static final DateTimeFormatter formatter = DateTimeFormatter
 			.ofPattern(DateConstant.DATE_FORMAT_yyyy_mm_dd_hhmmss_a);
 
-	private final IdentifyLogRepository identifyLogRepository;
 	private final UserRepository userRepository;
 	private final DeviceRepository deviceRepository;
 	private final IdentifyLogCustomRepository identifyLogCustomRepository;
 
-	public AuditLogService(IdentifyLogRepository identifyLogRepository, UserRepository userRepository,
-			DeviceRepository deviceRepository, IdentifyLogCustomRepository identifyLogCustomRepository) {
-		this.identifyLogRepository = identifyLogRepository;
+	public AuditLogService(UserRepository userRepository, DeviceRepository deviceRepository,
+			IdentifyLogCustomRepository identifyLogCustomRepository) {
 		this.userRepository = userRepository;
 		this.deviceRepository = deviceRepository;
 		this.identifyLogCustomRepository = identifyLogCustomRepository;
@@ -117,6 +114,11 @@ public class AuditLogService {
 			} else if (DeviceCodeConstant.IdentifyTypeEnum.NO_1.getCode().equals(log.getIdentifyType())) {
 				identifyLogDto.setUserId(log.getPersonId());
 				identifyLogDto.setFirstName("UnRegistered");
+				identifyLogDto.setFirstName("");
+				identifyLogDto.setLastName("");
+				identifyLogDto.setUserRole("");
+				identifyLogDto.setUserCompany("");
+				identifyLogDto.setUserBaseLocation("");
 			} else {
 				identifyLogDto.setUserId(log.getPersonId());
 				identifyLogDto.setFirstName("");
@@ -140,8 +142,8 @@ public class AuditLogService {
 
 			// Identity callback information
 
-			identifyLogDto.setAuthType(DeviceCodeConstant.ComparisonTypeEnum.getMsgByCode(log.getType()));
-			identifyLogDto.setAuthTypeDesc(DeviceCodeConstant.ComparisonTypeEnum.getDescriptionByCode(log.getType()));
+			identifyLogDto.setAuthType(DeviceCodeConstant.IdentifyPatternEnum.getMsgByCode(log.getModel()));
+			identifyLogDto.setAuthTypeDesc(DeviceCodeConstant.IdentifyPatternEnum.getDescriptionByCode(log.getModel()));
 
 			identifyLogDto.setIdCardNum(log.getIdcardNum());
 

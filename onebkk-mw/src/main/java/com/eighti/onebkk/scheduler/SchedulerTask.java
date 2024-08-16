@@ -15,6 +15,7 @@ public class SchedulerTask {
 
 	private static final long usersToFRDevicesFixedRate = 300000; // 5 minutes
 	private static final long checkDeviceStatusFixedRate = 60000; // 1 minutes
+	private static final long fetchIdentifyLogFixedRate = 60000; // 1 minutes
 
 	private final UserService userService;
 	private final DeviceService deviceService;
@@ -24,7 +25,7 @@ public class SchedulerTask {
 		this.deviceService = deviceService;
 	}
 
-	//@Scheduled(fixedRate = usersToFRDevicesFixedRate, initialDelay = 10000)
+	// @Scheduled(fixedRate = usersToFRDevicesFixedRate, initialDelay = 10000)
 	public void syncUsersToFRDevicesTask() {
 		LOG.info("\n===== START Perform Data Synchronizing =====");
 
@@ -39,7 +40,7 @@ public class SchedulerTask {
 
 	}
 
-	@Scheduled(fixedRate = checkDeviceStatusFixedRate, initialDelay = 10000)
+	// @Scheduled(fixedRate = checkDeviceStatusFixedRate, initialDelay = 10000)
 	public void checkdeviceOnlineOrOfflineTask() {
 		LOG.info("\n===== START Perform Device Checking =====");
 
@@ -51,6 +52,21 @@ public class SchedulerTask {
 		}
 
 		LOG.info("\n===== END Perform Device Checking =====\n");
+	}
+
+	@Scheduled(fixedRate = fetchIdentifyLogFixedRate)
+	public void fetchIdentifyLogFromDeviceTask() {
+		LOG.info("\n===== START Perform Fetch Identify Log =====");
+
+		try {
+			deviceService.fetchIdentifyLogFromDevices();
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("fetchIdentifyLogFromDeviceTask() >>> ERROR: " + e.getMessage());
+		}
+
+		LOG.info("\n===== END Perform Fetch Identify Log =====\n");
+
 	}
 
 }
