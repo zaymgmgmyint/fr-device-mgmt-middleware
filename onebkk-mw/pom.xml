@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>onebkk-mw</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>onebkk-mw</name>
 	<description>FR Device Middleware</description>
 
