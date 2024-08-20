@@ -36,7 +36,7 @@ public class DeviceCallbackHandler {
 		LOG.info("identifyCallBack() >>> Request Data: " + requestData.toString());
 		DeviceCallbackResponse resposne = new DeviceCallbackResponse(2, false);
 		try {
-			callbackService.saveIdentifyCallbackLog(requestData);
+			// callbackService.saveIdentifyCallbackLog(requestData);
 			resposne = new DeviceCallbackResponse(1, true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -52,7 +52,7 @@ public class DeviceCallbackHandler {
 		LOG.info("heartBeatCallback() >>> Request Data: " + requestData.toString());
 		DeviceCallbackResponse response = new DeviceCallbackResponse(2, false);
 		try {
-			callbackService.saveHeartBeatCallbackLog(requestData);
+			// callbackService.saveHeartBeatCallbackLog(requestData);
 			response = new DeviceCallbackResponse(1, true);
 		} catch (Exception e) {
 			e.printStackTrace();
