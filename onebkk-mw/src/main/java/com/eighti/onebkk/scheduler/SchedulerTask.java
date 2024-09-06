@@ -40,7 +40,7 @@ public class SchedulerTask {
 
 	}
 
-	// @Scheduled(fixedRate = checkDeviceStatusFixedRate, initialDelay = 10000)
+	@Scheduled(fixedRate = checkDeviceStatusFixedRate, initialDelay = 10000)
 	public void checkdeviceOnlineOrOfflineTask() {
 		LOG.info("\n===== START Perform Device Checking =====");
 

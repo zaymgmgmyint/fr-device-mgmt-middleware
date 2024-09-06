@@ -30,13 +30,14 @@ public class IdentifyLogCustomRepositoryImpl implements IdentifyLogCustomReposit
 
 	@Override
 	public PaginatedResponse<IdentifyLog> searchIdentifyLogs(LocalDateTime fromDate, LocalDateTime toDate, String role,
-			String company, List<String> deviceKeys, List<String> models, List<String> identifyTypes, Integer page) {
+			String company, List<String> deviceKeys, List<String> models, List<String> identifyTypes,
+			List<String> deviceIps, Integer page) {
 
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append(
 				"SELECT iLog.id, iLog.alive_type, iLog.base64, iLog.device_key, iLog.id_card_num, iLog.identify_type, iLog.ip, iLog.model, iLog.pass_time_type, iLog.path, iLog.permission_time_type, iLog.person_id,");
 		sqlBuilder.append(
-				" iLog.rec_type, iLog.time, iLog.dst_offset, iLog.passback_trigger_type, iLog.mask_state, iLog.work_code, iLog.attendance, iLog.type, iLog.log_datetime, iLog.log_time");
+				" iLog.rec_type, iLog.time, iLog.dst_offset, iLog.passback_trigger_type, iLog.mask_state, iLog.work_code, iLog.attendance, iLog.type, iLog.log_datetime, iLog.log_time, iLog.ip");
 
 		sqlBuilder.append(" FROM identify_log iLog");
 		sqlBuilder.append(" LEFT JOIN user iUser ON iUser.user_id=iLog.person_id");
@@ -60,6 +61,19 @@ public class IdentifyLogCustomRepositoryImpl implements IdentifyLogCustomReposit
 		if (CommonUtil.validList(deviceKeys)) {
 			sqlBuilder.append(" AND iLog.device_key IN (:deviceKeys)");
 			countSqlBuilder.append(" AND iLog.device_key IN (:deviceKeys)");
+		}
+
+		if (CommonUtil.validList(deviceIps)) {
+			StringBuilder likeConditions = new StringBuilder();
+			for (int i = 0; i < deviceIps.size(); i++) {
+				if (i > 0) {
+					likeConditions.append(" OR ");
+				}
+				likeConditions.append("iLog.ip LIKE :deviceIp" + i);
+			}
+
+			sqlBuilder.append(" AND (").append(likeConditions).append(")");
+			countSqlBuilder.append(" AND (").append(likeConditions).append(")");
 		}
 
 		if (CommonUtil.validList(models)) {
@@ -101,6 +115,13 @@ public class IdentifyLogCustomRepositoryImpl implements IdentifyLogCustomReposit
 		if (CommonUtil.validList(deviceKeys)) {
 			query.setParameter("deviceKeys", deviceKeys);
 			countQuery.setParameter("deviceKeys", deviceKeys);
+		}
+
+		if (CommonUtil.validList(deviceIps)) {
+			for (int i = 0; i < deviceIps.size(); i++) {
+				query.setParameter("deviceIp" + i, "%" + deviceIps.get(i) + "%");
+				countQuery.setParameter("deviceIp" + i, "%" + deviceIps.get(i) + "%");
+			}
 		}
 
 		if (CommonUtil.validList(models)) {
@@ -181,6 +202,8 @@ public class IdentifyLogCustomRepositoryImpl implements IdentifyLogCustomReposit
 			} else {
 				log.setLogTime(null);
 			}
+
+			log.setIp((String) result[22]);
 
 			entityList.add(log);
 		}

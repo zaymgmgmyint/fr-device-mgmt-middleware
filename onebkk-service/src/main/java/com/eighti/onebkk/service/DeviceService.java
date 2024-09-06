@@ -5,9 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.poi.ss.usermodel.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -18,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -88,7 +85,7 @@ public class DeviceService {
 		});
 	}
 
-	// TODO Get identify log from devices
+	// Get identify log from devices
 	public void fetchIdentifyLogFromDevices() {
 		LOG.info("fetchIdentifyLogFromDevices() >>> START");
 
@@ -134,7 +131,7 @@ public class DeviceService {
 			LOG.info("fetchIdentifyLogFromDevice() >>> Identify record query url: " + fullUrl);
 
 			// Make the API call
-			fetchIdentifyLogs(fullUrl, device.getDeviceKey());
+			fetchIdentifyLogs(fullUrl, device.getDeviceKey(), device.getDeviceIp());
 
 		} catch (Exception e) {
 			LOG.error("fetchIdentifyLogFromDevice() >>> Error: " + e.getMessage());
@@ -144,7 +141,7 @@ public class DeviceService {
 
 	@Async("identifyLogExecutor")
 	@Transactional
-	private void fetchIdentifyLogs(String fullUrl, String deviceKey) {
+	private void fetchIdentifyLogs(String fullUrl, String deviceKey, String deviceIp) {
 		try {
 			LOG.info("fetchIdentifyLogs() >>> Fetching identify record...");
 
@@ -173,6 +170,8 @@ public class DeviceService {
 						identifyLog.setAliveType(log.getAliveType() != null ? log.getAliveType().toString() : "");
 						// identifyLog.setBase64(callbackData.getBase64());
 						identifyLog.setDeviceKey(deviceKey);
+						// save device IP of related device
+						identifyLog.setIp(deviceIp);
 						identifyLog.setIdcardNum(log.getIdcardNum());
 						identifyLog
 								.setIdentifyType(log.getIdentifyType() != null ? log.getIdentifyType().toString() : "");
@@ -261,7 +260,7 @@ public class DeviceService {
 			device.setDeviceStatus(0);
 		}
 
-		deviceRepository.save(device);
+		deviceRepository.saveAndFlush(device);
 	}
 
 	private static String formatTime(long milliseconds) {

@@ -27,6 +27,8 @@ public class IdentifyAuditLogRequest implements Serializable {
 	private String company;
 
 	private List<String> deviceKeys;
+	
+	private List<String> deviceIps;
 
 	private Integer page;
 }

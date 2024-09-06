@@ -9,6 +9,6 @@ import com.eighti.onebkk.entity.IdentifyLog;
 public interface IdentifyLogCustomRepository {
 
 	PaginatedResponse<IdentifyLog> searchIdentifyLogs(LocalDateTime fromDate, LocalDateTime toDate, String role,
-			String company, List<String> deviceKeys, List<String> models, List<String> identifyTypes, Integer page);
+			String company, List<String> deviceKeys, List<String> models, List<String> identifyTypes, List<String> deviceIps, Integer page);
 
 }

@@ -69,22 +69,20 @@ public class AuditLogService {
 		List<String> deviceKeys = CommonUtil.validList(requestData.getDeviceKeys()) ? requestData.getDeviceKeys()
 				: new ArrayList<String>();
 
-		Integer pageNo = CommonUtil.validInteger(requestData.getPage()) ? requestData.getPage() : 1;
+		List<String> deviceIps = CommonUtil.validList(requestData.getDeviceIps()) ? requestData.getDeviceIps()
+				: new ArrayList<String>();
+
+		Integer pageNo = CommonUtil.validInteger(requestData.getPage()) ? requestData.getPage() : 0;
 
 		// Retrieve the identify log data based on the search criteria
 
 		PaginatedResponse<IdentifyLog> identifyLogEntity = identifyLogCustomRepository.searchIdentifyLogs(fromDate,
 				toDate, requestData.getRole(), requestData.getCompany(), deviceKeys, authTypes, authSuccessTypes,
-				pageNo);
+				deviceIps, pageNo);
 
 		List<IdentifyLog> identifyLogs = (identifyLogEntity != null && identifyLogEntity.getData() != null)
 				? identifyLogEntity.getData()
 				: new ArrayList<IdentifyLog>();
-
-//		List<IdentifyLog> identifyLogs = CommonUtil.validList(requestData.getDeviceKeys())
-//				? identifyLogRepository.findByLogDateTimeBetweenAndDeviceKeyIn(fromDate, toDate,
-//						requestData.getDeviceKeys(), authTypes, authSuccessTypes)
-//				: identifyLogRepository.findByLogDateTimeBetween(fromDate, toDate, authTypes, authSuccessTypes);
 
 		// Loop through the identify log list
 		identifyLogs.forEach(log -> {
