@@ -102,6 +102,9 @@ public class DeviceService {
 	private void fetchIdentifyLogFromDevice(Device device) {
 		try {
 
+			LOG.info("Device Info >>> device id: {}, device key: {}, device ip: {}", device.getId(),
+					device.getDeviceKey(), device.getDeviceIp());
+
 			// Set the startTime to the lastEndTime or 1 minute ago if it's the first run
 			LocalDateTime startTime = (device.getLastFetchTime() != null) ? device.getLastFetchTime().minusSeconds(5)
 					: LocalDateTime.now().minusMinutes(1);
@@ -144,6 +147,7 @@ public class DeviceService {
 	private void fetchIdentifyLogs(String fullUrl, String deviceKey, String deviceIp) {
 		try {
 			LOG.info("fetchIdentifyLogs() >>> Fetching identify record...");
+			LOG.info("fetchIdentifyLogs() >>> Device Ip: {}", deviceIp);
 
 			// Setup the HTTP headers
 			HttpHeaders httpHeaders = new HttpHeaders();
@@ -169,9 +173,12 @@ public class DeviceService {
 						IdentifyLog identifyLog = new IdentifyLog();
 						identifyLog.setAliveType(log.getAliveType() != null ? log.getAliveType().toString() : "");
 						// identifyLog.setBase64(callbackData.getBase64());
+						LOG.info("fetchIdentifyLogs() >>> Device key: {}", deviceKey);
 						identifyLog.setDeviceKey(deviceKey);
 						// save device IP of related device
+						LOG.info("fetchIdentifyLogs() >>> Device ip: {}", deviceIp);
 						identifyLog.setIp(deviceIp);
+						
 						identifyLog.setIdcardNum(log.getIdcardNum());
 						identifyLog
 								.setIdentifyType(log.getIdentifyType() != null ? log.getIdentifyType().toString() : "");
