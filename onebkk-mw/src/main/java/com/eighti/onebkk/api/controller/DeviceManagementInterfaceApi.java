@@ -33,7 +33,7 @@ public class DeviceManagementInterfaceApi {
 
 	// TODO Delete personnel list
 
-	// TODO Set the device QR callback
+	// TODO Configure the device QR callback
 	@GetMapping("/setDeviceQRCallback")
 	public Response<String> setDeviceQRCallback() {
 		Response<String> response = new Response<String>();

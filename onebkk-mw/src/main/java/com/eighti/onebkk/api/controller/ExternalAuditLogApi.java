@@ -14,10 +14,12 @@ import com.eighti.onebkk.response.Response;
 import com.eighti.onebkk.service.AuditLogService;
 import com.eighti.onebkk.utils.FieldErrorCode;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
+@Hidden
 @RequestMapping("/v1/log")
 @Tag(name = "Audit Log External APIs")
 public class ExternalAuditLogApi {

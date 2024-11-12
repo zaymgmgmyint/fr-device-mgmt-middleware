@@ -31,11 +31,11 @@ public class SwaggerConfig {
 		localIpServer.setDescription("Local IP Server");
 
 		Contact contact = new Contact();
-		contact.setName("One BKK");
+		contact.setName("Innoflex Middleware");
 		contact.setEmail("onebkk@gmail.com");
 
-		Info info = new Info().title("One BKK Device Middleware").version("1.0")
-				.description("This API provides the endpoints of the device management system").contact(contact);
+		Info info = new Info().title("Innoflex Middleware").version("1.0")
+				.description("This API provides the endpoints of the middleware").contact(contact);
 
 		return new OpenAPI().info(info).servers(List.of(developmentServer, localIpServer));
 	}

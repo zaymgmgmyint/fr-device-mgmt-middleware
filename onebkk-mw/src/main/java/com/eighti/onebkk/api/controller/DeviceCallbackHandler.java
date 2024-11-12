@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.eighti.onebkk.dto.api.request.HeartBeatCallbackRequest;
 import com.eighti.onebkk.dto.api.request.IdentifyCallbackRequest;
+import com.eighti.onebkk.dto.api.request.QRCallbackRequest;
+import com.eighti.onebkk.dto.api.response.QRCallbackResponse;
 import com.eighti.onebkk.response.DeviceCallbackResponse;
 import com.eighti.onebkk.service.DeviceCallbackService;
 
@@ -30,13 +32,14 @@ public class DeviceCallbackHandler {
 		this.callbackService = callbackService;
 	}
 
+	// Identify callback handler
 	@PostMapping("/identifyCallback")
 	public DeviceCallbackResponse identifyCallBack(@RequestBody IdentifyCallbackRequest requestData,
 			HttpServletRequest httpRequest) {
 		LOG.info("identifyCallBack() >>> Request Data: " + requestData.toString());
 		DeviceCallbackResponse resposne = new DeviceCallbackResponse(2, false);
 		try {
-			// callbackService.saveIdentifyCallbackLog(requestData);
+			callbackService.saveIdentifyCallbackLog(requestData);
 			resposne = new DeviceCallbackResponse(1, true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -46,6 +49,7 @@ public class DeviceCallbackHandler {
 		return resposne;
 	}
 
+	// Device heart beat callback handler
 	@PostMapping("/heartBeatCallback")
 	public DeviceCallbackResponse heartBeatCallback(@RequestBody HeartBeatCallbackRequest requestData,
 			HttpServletRequest httpRequest) {
@@ -58,6 +62,21 @@ public class DeviceCallbackHandler {
 			e.printStackTrace();
 			LOG.error("heartBeatCallback() >>> ERROR: " + e.getMessage(), e);
 		}
+		return response;
+	}
+
+	// TODO Device QR callback handler
+	@PostMapping("/qrCallback")
+	public QRCallbackResponse qrCallback(@RequestBody QRCallbackRequest requestData, HttpServletRequest httpRequest) {
+		LOG.info("qrCallback() >>> Request Data: " + requestData.toString());
+		QRCallbackResponse response = new QRCallbackResponse("Valid Access!", 1, "123456");
+
+		try {
+
+		} catch (Exception e) {
+			LOG.error("qrCallback() >>> ERROR: {}", e.getMessage(), e);
+		}
+
 		return response;
 	}
 }
