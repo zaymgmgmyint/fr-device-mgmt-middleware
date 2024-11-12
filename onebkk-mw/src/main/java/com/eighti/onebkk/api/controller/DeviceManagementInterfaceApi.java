@@ -33,6 +33,21 @@ public class DeviceManagementInterfaceApi {
 
 	// TODO Delete personnel list
 
+	// TODO Set the device QR callback
+	@GetMapping("/setDeviceQRCallback")
+	public Response<String> setDeviceQRCallback() {
+		Response<String> response = new Response<String>();
+		try {
+			response.setData("Successfully set the device QR callback");
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("setIdentifyCallback() >>> Excpetion occured while set identify callback: ", e.getMessage(), e);
+			response = new Response<>(FieldErrorCode.GENERAL);
+		}
+
+		return response;
+	}
+
 	// TODO Configure identify callback
 	@GetMapping("/setIdentifyCallBack")
 	public Response<List<IdentifyCallbackResponse>> setIdentifyCallback() {
