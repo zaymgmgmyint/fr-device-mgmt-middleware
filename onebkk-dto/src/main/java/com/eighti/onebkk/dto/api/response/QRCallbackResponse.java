@@ -2,32 +2,33 @@ package com.eighti.onebkk.dto.api.response;
 
 import java.io.Serializable;
 
-import com.eighti.onebkk.utils.device.common.OpenRelayStatusEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
 public class QRCallbackResponse implements Serializable {
 
-	private static final long serialVersionUID = -7348122194807487728L;
+	private static final long serialVersionUID = 8286039084740157972L;
+	
+	private String deviceKey;
+	private boolean setQRCallbackUrl;
+	
 
-	@JsonProperty(value = "displayModContent")
-	private String displayModContent;
+	private String code;
 
-	@JsonProperty(value = "isOpenRelay")
-	private int isOpenRelay; // Whether the relay opens the door 1 Open, others Not open
+	private String data;
 
-	@JsonProperty(value = "cardNo")
-	private String cardNo = "1234";
+	private String msg;
 
-	public QRCallbackResponse() {
-		this.displayModContent = "Invalid Access";
-		this.isOpenRelay = OpenRelayStatusEnum.NOT_OPEN.getCode();
-	}
+	private String result;
+
+	private boolean success;
+
 }

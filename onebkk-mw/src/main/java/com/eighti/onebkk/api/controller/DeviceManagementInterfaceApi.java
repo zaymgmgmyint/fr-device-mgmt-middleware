@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.eighti.onebkk.dto.api.response.DeviceCallbackResponse;
 import com.eighti.onebkk.dto.api.response.IdentifyCallbackResponse;
+import com.eighti.onebkk.dto.api.response.QRCallbackResponse;
 import com.eighti.onebkk.response.Response;
 import com.eighti.onebkk.service.DeviceInterfaceService;
 import com.eighti.onebkk.utils.FieldErrorCode;
@@ -35,13 +36,13 @@ public class DeviceManagementInterfaceApi {
 
 	// TODO Configure the device QR callback
 	@GetMapping("/setDeviceQRCallback")
-	public Response<String> setDeviceQRCallback() {
-		Response<String> response = new Response<String>();
+	public Response<List<QRCallbackResponse>> setDeviceQRCallback() {
+		Response<List<QRCallbackResponse>> response = new Response<List<QRCallbackResponse>>();
 		try {
-			response.setData("Successfully set the device QR callback");
+			List<QRCallbackResponse> responseList = deviceInterfaceService.setDeviceQrCallbackURL();
+			response.setData(responseList);
 		} catch (Exception e) {
-			e.printStackTrace();
-			LOG.error("setIdentifyCallback() >>> Excpetion occured while set identify callback: ", e.getMessage(), e);
+			LOG.error("setIdentifyCallback() >>> Excpetion occured while set identify callback: {}", e.getMessage(), e);
 			response = new Response<>(FieldErrorCode.GENERAL);
 		}
 
@@ -58,7 +59,7 @@ public class DeviceManagementInterfaceApi {
 			response.setData(identifyCallbackResponses);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOG.error("setIdentifyCallback() >>> Excpetion occured while set identify callback: ", e.getMessage(), e);
+			LOG.error("setIdentifyCallback() >>> Excpetion occured while set identify callback: {}", e.getMessage(), e);
 			response = new Response<>(FieldErrorCode.GENERAL);
 		}
 
@@ -75,7 +76,7 @@ public class DeviceManagementInterfaceApi {
 			response.setData(identifyCallbackResponses);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOG.error("setIdentifyCallback() >>> Excpetion occured while set hearbeat callback: ", e.getMessage(), e);
+			LOG.error("setIdentifyCallback() >>> Excpetion occured while set hearbeat callback: {}", e.getMessage(), e);
 			response = new Response<>(FieldErrorCode.GENERAL);
 		}
 
@@ -92,7 +93,7 @@ public class DeviceManagementInterfaceApi {
 			response.setData(heartBeatCallbacks);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOG.error("getCallbackAddress() >>> Excpetion occured while getting callback address: ", e.getMessage(), e);
+			LOG.error("getCallbackAddress() >>> Excpetion occured while getting callback address: {}", e.getMessage(), e);
 			response = new Response<>(FieldErrorCode.GENERAL);
 		}
 

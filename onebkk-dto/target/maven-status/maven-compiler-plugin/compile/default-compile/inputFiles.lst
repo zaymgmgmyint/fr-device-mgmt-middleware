@@ -1,3 +1,4 @@
+D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\PaginatedResponse.java
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\api\response\HeartBeatCallbackResponse.java
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\api\response\IdentifyAuditLogResponse.java
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\deviceinterface\PersonnelResponse.java
@@ -12,4 +13,5 @@ D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\api\request\IdentifyAuditLogRequest.java
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\api\response\DeviceResponse.java
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\api\response\IdentifyCallbackResponse.java
+D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\api\response\IdentifyLogResponse.java
 D:\[2] Innoflex\Git\Dev_Test\fr-device-mgmt-middleware\onebkk-dto\src\main\java\com\eighti\onebkk\dto\web\request\LoginRequest.java

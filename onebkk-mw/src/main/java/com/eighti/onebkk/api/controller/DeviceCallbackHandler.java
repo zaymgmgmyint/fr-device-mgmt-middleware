@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.eighti.onebkk.dto.api.request.HeartBeatCallbackRequest;
 import com.eighti.onebkk.dto.api.request.IdentifyCallbackRequest;
 import com.eighti.onebkk.dto.api.request.QRCallbackRequest;
-import com.eighti.onebkk.dto.api.response.QRCallbackResponse;
+import com.eighti.onebkk.dto.api.response.QRCallbackHandlerResponse;
 import com.eighti.onebkk.response.DeviceCallbackResponse;
 import com.eighti.onebkk.service.DeviceCallbackService;
 
@@ -67,12 +67,13 @@ public class DeviceCallbackHandler {
 
 	// TODO Device QR callback handler
 	@PostMapping("/qrCallback")
-	public QRCallbackResponse qrCallback(@RequestBody QRCallbackRequest requestData, HttpServletRequest httpRequest) {
+	public QRCallbackHandlerResponse qrCallback(@RequestBody QRCallbackRequest requestData,
+			HttpServletRequest httpRequest) {
 		LOG.info("qrCallback() >>> Request Data: " + requestData.toString());
-		QRCallbackResponse response = new QRCallbackResponse("Valid Access!", 1, "123456");
+		QRCallbackHandlerResponse response = new QRCallbackHandlerResponse("Valid Access!", 1, "123456");
 
 		try {
-
+			callbackService.processQRRequest(requestData);
 		} catch (Exception e) {
 			LOG.error("qrCallback() >>> ERROR: {}", e.getMessage(), e);
 		}

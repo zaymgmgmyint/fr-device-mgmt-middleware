@@ -1,7 +1,7 @@
 #QR Code Access Control Door Workshop
 
 ## TODO List
-- [] To test the RSA decryption functionality
+- [x] ~~To test the RSA decryption functionality~~
 - [] Implement the device QR callback configure controller and callback handler
 - [] To Implement the APIs integration with TCCT
 - [] To prepare the test data for user card no and user id number

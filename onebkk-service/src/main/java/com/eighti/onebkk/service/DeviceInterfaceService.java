@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import com.eighti.onebkk.dto.PersonnelDto;
 import com.eighti.onebkk.dto.api.response.DeviceCallbackResponse;
 import com.eighti.onebkk.dto.api.response.IdentifyCallbackResponse;
+import com.eighti.onebkk.dto.api.response.QRCallbackResponse;
 import com.eighti.onebkk.dto.deviceinterface.PersonnelResponse;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.InterfaceSetting;
@@ -401,6 +402,77 @@ public class DeviceInterfaceService {
 		return responseList;
 	}
 
+	// Set the device QR callback URL
+	public List<QRCallbackResponse> setDeviceQrCallbackURL() {
+		List<QRCallbackResponse> responseList = new ArrayList<QRCallbackResponse>();
+		QRCallbackResponse qrResponse = null;
+
+		try {
+			List<Device> deviceList = deviceRepository.findByStatus(CommonStatus.ACTIVE.getCode());
+
+			Map<String, String> requestBody = new HashMap<String, String>();
+			Optional<InterfaceSetting> interfaceSettingOptional = interfaceSettingRepository
+					.getValueByCode(DeviceInterfaceConstant.QR_CALLBACK);
+
+			String deviceInterfaceSettingUrl = interfaceSettingOptional.isPresent()
+					? interfaceSettingOptional.get().getValue()
+					: "";
+
+			requestBody.put("url", deviceInterfaceSettingUrl);
+
+			LOG.info("setDeviceQrCallbackURL() >>> Callback URL: {}", requestBody.get("url"));
+
+			for (Device device : deviceList) {
+
+				try {
+					qrResponse = new QRCallbackResponse();
+					qrResponse.setDeviceKey(device.getDeviceKey());
+
+					// Prepare the request body
+					requestBody.put("pass", device.getDevicePassword());
+					String jsonBody = new ObjectMapper().writeValueAsString(requestBody);
+
+					// Create the request headers
+					HttpHeaders headers = new HttpHeaders();
+					headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+					HttpEntity<String> entity = new HttpEntity<String>(jsonBody, headers);
+
+					// Create the POST request URL
+					String url = device.getDeviceIp().concat(DeviceInterfaceAPIConstant.SET_QR_CALLBACK);
+					LOG.info(
+							"setDeviceQrCallbackURL() >>> Invoking face scanner terminal (setDeviceQrCallbackURL) ...");
+
+					// Handle the response
+					ResponseEntity<QRCallbackResponse> response = restTemplate.postForEntity(url, entity,
+							QRCallbackResponse.class);
+
+					// Logging the response
+					if (response != null) {
+						LOG.info("Response status code: {}", response.getStatusCode());
+						LOG.info("Response body: {}", response.getBody().toString());
+
+						qrResponse = response.getBody();
+						qrResponse.setSetQRCallbackUrl(true);
+					} else {
+						LOG.info("Response is NULL");
+						qrResponse.setSetQRCallbackUrl(false);
+					}
+
+				} catch (Exception e) {
+					qrResponse.setSetQRCallbackUrl(false);
+					LOG.error("setDeviceQrCallbackURL() >>> ERROR: {}", e.getMessage(), e);
+				}
+
+				responseList.add(qrResponse);
+			}
+		} catch (Exception e) {
+			LOG.error("setDeviceQrCallbackURL() >>> Exception: {}", e.getMessage(), e);
+		}
+
+		return responseList;
+	}
+
 	public List<DeviceCallbackResponse> getCallbackAddress() {
 		List<DeviceCallbackResponse> heartBeatCallbackDataList = new ArrayList<DeviceCallbackResponse>();
 		List<Device> deviceList = deviceRepository.findByStatus(1);
@@ -431,7 +503,7 @@ public class DeviceInterfaceService {
 					LOG.info("getCallbackAddress() >>> Response body: " + response.getBody().toString());
 
 					deviceCallbackResponse = response.getBody();
-					
+
 					deviceCallbackResponse.setDeviceName(device.getDeviceName());
 					heartBeatCallbackDataList.add(deviceCallbackResponse);
 				} else {
