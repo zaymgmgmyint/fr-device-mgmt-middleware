@@ -2,9 +2,9 @@
 
 ## TODO List
 - [x] ~~To test the RSA decryption functionality~~
-- [] Implement the device QR callback configure controller and callback handler
-- [] To Implement the APIs integration with TCCT
-- [] To prepare the test data for user card no and user id number
+- [x] ~~Implement the device QR callback configure controller and callback handler~~
+- [x] ~~To Implement the APIs integration with TCCT~~
+- [x] ~~To prepare the test data for user card no and user id number~~
 - [] To implement the data matching module and notify to Honeywell system via device
 
 ## Testing Check List (TBD)

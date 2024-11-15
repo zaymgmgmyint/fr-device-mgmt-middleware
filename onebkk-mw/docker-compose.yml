@@ -8,7 +8,7 @@ services:
       MYSQL_USER: onebkk
       MYSQL_PASSWORD: onebkk
     ports:
-      - "3307:3306"  # Map container's port 3306 to host's port 3306
+      - "3307:3306"  # Map container's port 3306 to host's port 3307
     volumes:
       - mysql_data:/var/lib/mysql
     #privileged: true
@@ -19,7 +19,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - "8080:8080" # Map container's port 8080 to host's port 8090
+      - "8090:8080" # Map container's port 8080 to host's port 8080
     #environment:
       #SPRING_JDBC_HOST: 127.0.0.1
       #SPRING_DATASOURCE_NAME: jdbc:mysql://127.0.0.1:3306/onebkk

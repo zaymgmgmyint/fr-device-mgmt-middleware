@@ -17,6 +17,9 @@ public class QRCallbackHandlerResponse implements Serializable {
 
 	private static final long serialVersionUID = -7348122194807487728L;
 
+	@JsonProperty(value = "ttsModContent")
+	private String ttsModContent;
+
 	@JsonProperty(value = "displayModContent")
 	private String displayModContent;
 
@@ -27,6 +30,7 @@ public class QRCallbackHandlerResponse implements Serializable {
 	private String cardNo = "1234";
 
 	public QRCallbackHandlerResponse() {
+		this.ttsModContent = "Invalid Access";
 		this.displayModContent = "Invalid Access";
 		this.isOpenRelay = OpenRelayStatusEnum.NOT_OPEN.getCode();
 	}

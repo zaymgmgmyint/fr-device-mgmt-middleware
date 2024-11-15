@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.eighti.onebkk.dto.QRCallbackDto;
 import com.eighti.onebkk.dto.api.request.HeartBeatCallbackRequest;
 import com.eighti.onebkk.dto.api.request.IdentifyCallbackRequest;
 import com.eighti.onebkk.dto.api.request.QRCallbackRequest;
@@ -24,9 +25,11 @@ import com.eighti.onebkk.dto.api.response.TcctAuthResponse;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.HeartBeatLog;
 import com.eighti.onebkk.entity.IdentifyLog;
+import com.eighti.onebkk.entity.User;
 import com.eighti.onebkk.repository.DeviceRepository;
 import com.eighti.onebkk.repository.HeartBeatLogRepository;
 import com.eighti.onebkk.repository.IdentifyLogRepository;
+import com.eighti.onebkk.repository.UserRepository;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.JwtDecoder;
 import com.eighti.onebkk.utils.RSADecryption;
@@ -45,15 +48,17 @@ public class DeviceCallbackService {
 	private final DeviceRepository deviceRepository;
 	private final TCCTAPIComponent tcctApiComponent;
 	private final RestTemplate restTemplate;
+	private final UserRepository userRepository;
 
 	public DeviceCallbackService(HeartBeatLogRepository heartbeatLogRepository,
 			IdentifyLogRepository identifyLogRepository, DeviceRepository deviceRepository,
-			TCCTAPIComponent tcctApiComponent, RestTemplate restTemplate) {
+			TCCTAPIComponent tcctApiComponent, RestTemplate restTemplate, UserRepository userRepository) {
 		this.heartbeatLogRepository = heartbeatLogRepository;
 		this.identifyLogRepository = identifyLogRepository;
 		this.deviceRepository = deviceRepository;
 		this.tcctApiComponent = tcctApiComponent;
 		this.restTemplate = restTemplate;
+		this.userRepository = userRepository;
 	}
 
 	// TODO save identify callback log
@@ -133,9 +138,11 @@ public class DeviceCallbackService {
 		}
 	}
 
-	public void processQRRequest(QRCallbackRequest requestData) throws Exception {
+	public QRCallbackDto processQRRequest(QRCallbackRequest requestData) throws Exception {
 		LOG.info("processQRRequest() >>> Process QR request: {}", requestData.getDeviceKey());
 
+		QRCallbackDto qrCallbackDto = null;
+		String customerUid = null;
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			String jwtPayloadToken = null, accountId = null;
@@ -180,12 +187,8 @@ public class DeviceCallbackService {
 //			authHeaders.set("x-account-id", accountId);
 //			authHeaders.set("x-permissions", jwtPayloadToken);
 			headers.set("Accept", "*/*");
-			headers.set("x-account-id", "3a534b2c-cf7b-4d81-af5b-7d375b5fcbc1");
-			headers.set("x-permissions",
-					"eyJzdWIiOiIzYTUzNGIyYy1jZjdiLTRkODEtYWY1Yi03ZDM3NWI1ZmNiYzEiLCJpc3MiOiJPbmVCYW5na29rIiwiaWF0IjoxNzMwODc5NjU4LCJleHAiOjE3MzM0NzE2NTgsInBlcm1pc3Npb24iOlt7ImlkIjoiNDE2YmY5OWItMDg0NC00YTVlLThjZjAtNjRiMWZkZDY3YmJlIiwicGVybWl0dGVlX3R5cGUiOiJhY2NvdW50IiwidmFsdWUiOnsibmFtZSI6Im9iLWJtczpmcyIsInNlcnZpY2UiOiJvYi1ibXMiLCJhY3Rpb25zIjpbIioiXSwicmVzb3VyY2VfdHlwZSI6ImZzIiwicmVzb3VyY2UiOnsiaWQiOiJzZWxmIn19LCJhY2NvdW50X2dyb3VwX2lkIjpudWxsLCJyb2xlX2lkIjpudWxsfSx7ImlkIjoiODExYjZiOTgtOTVkMS00NTA2LWJjZDUtYTdkYzRmMjU3NzZlIiwicGVybWl0dGVlX3R5cGUiOiJhY2NvdW50IiwidmFsdWUiOnsibmFtZSI6Im9iLWlhbTp0b2tlbiIsInNlcnZpY2UiOiJvYi1pYW0iLCJhY3Rpb25zIjpbInJlYWQiXSwicmVzb3VyY2VfdHlwZSI6InRva2VuIiwicmVzb3VyY2UiOnsiYWNjb3VudF9pZCI6InNlbGYifX0sImFjY291bnRfZ3JvdXBfaWQiOm51bGwsInJvbGVfaWQiOm51bGx9XX0"); // Ensure
-																																																																																																																																																																																																						// this
-																																																																																																																																																																																																						// is
-																																																																																																																																																																																																						// correct
+			headers.set("x-account-id", accountId);
+			headers.set("x-permissions", jwtPayloadToken);
 
 			String url = tcctApiComponent.getCustomerUrl().concat(qrId);
 			LOG.info("processQRRequest() >>> Customer URL: {}", url);
@@ -215,14 +218,31 @@ public class DeviceCallbackService {
 				// Decrypt the data
 				decryptedData = RSADecryption.decrypt(privateKey, encryptedData);
 				LOG.info("processQRRequest() >>> Decrypted Data: {}", decryptedData);
+
+				// Parse the JSON string into a JsonNode
+				JsonNode customerDataNode = objectMapper.readTree(decryptedData);
+				customerUid = customerDataNode.get("uid").asText();
+				LOG.info("processQRRequest() >>> custome uid: {}", customerUid);
 			}
 
-			// TODO Matching the user card no and customer id
+			// Matching the user card no and customer id
+			Optional<User> userOptional = userRepository
+					.findUserByAccountIdWithLimit(CommonUtil.validString(customerUid) ? customerUid.trim() : "-");
+
+			qrCallbackDto = new QRCallbackDto();
+			if (userOptional.isPresent()) {
+				User user = userOptional.get();
+				LOG.info("processQRRequest() >>> User account id is exist in system.");
+				qrCallbackDto.setSuccess(true);
+				qrCallbackDto.setCardNo(user.getFrCardNumber());
+			}
 
 		} catch (Exception e) {
 			LOG.error("processQRRequest() >>> ERROR: {}", e.getMessage(), e);
 			throw e;
 		}
+
+		return qrCallbackDto;
 	}
 
 }

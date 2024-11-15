@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.eighti.onebkk.dto.QRCallbackDto;
 import com.eighti.onebkk.dto.api.request.HeartBeatCallbackRequest;
 import com.eighti.onebkk.dto.api.request.IdentifyCallbackRequest;
 import com.eighti.onebkk.dto.api.request.QRCallbackRequest;
 import com.eighti.onebkk.dto.api.response.QRCallbackHandlerResponse;
 import com.eighti.onebkk.response.DeviceCallbackResponse;
 import com.eighti.onebkk.service.DeviceCallbackService;
+import com.eighti.onebkk.utils.device.common.OpenRelayStatusEnum;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,11 +72,23 @@ public class DeviceCallbackHandler {
 	public QRCallbackHandlerResponse qrCallback(@RequestBody QRCallbackRequest requestData,
 			HttpServletRequest httpRequest) {
 		LOG.info("qrCallback() >>> Request Data: " + requestData.toString());
-		QRCallbackHandlerResponse response = new QRCallbackHandlerResponse("Valid Access!", 1, "123456");
+		QRCallbackHandlerResponse response = null;
 
 		try {
-			callbackService.processQRRequest(requestData);
+			QRCallbackDto qrCallbackDto = callbackService.processQRRequest(requestData);
+
+			// TODO prepare the response based on the QR Callback Data
+			if (qrCallbackDto != null) {
+				response = new QRCallbackHandlerResponse(
+						qrCallbackDto.isSuccess() ? "Valid Access!" : "Invalid Access!",
+						qrCallbackDto.isSuccess() ? "Valid Access!" : "Invalid Access!",
+						qrCallbackDto.isSuccess() ? OpenRelayStatusEnum.OPEN.getCode()
+								: OpenRelayStatusEnum.NOT_OPEN.getCode(),
+						qrCallbackDto.getCardNo());
+			}
 		} catch (Exception e) {
+			response = new QRCallbackHandlerResponse("System Error!", "System Error!",
+					OpenRelayStatusEnum.NOT_OPEN.getCode(), "");
 			LOG.error("qrCallback() >>> ERROR: {}", e.getMessage(), e);
 		}
 
