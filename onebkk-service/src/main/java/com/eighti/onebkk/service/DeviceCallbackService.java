@@ -14,6 +14,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.eighti.onebkk.dto.QRCallbackDto;
@@ -155,7 +157,7 @@ public class DeviceCallbackService {
 			String qrId = qrDataNode.get("id").asText();
 			LOG.info("processQRRequest() >>> QR id: {}", qrId);
 
-			// Get Account ID and Permission(Auth) API
+			// Get Account ID and Permission(Authentication) API
 			LOG.info("processQRRequest() >>> Auth API URL: {}", tcctApiComponent.getAuthUrl());
 
 			HttpHeaders authHeaders = new HttpHeaders();
@@ -168,7 +170,7 @@ public class DeviceCallbackService {
 			ResponseEntity<TcctAuthResponse> authResponse = restTemplate.postForEntity(tcctApiComponent.getAuthUrl(),
 					authRequestEntity, TcctAuthResponse.class);
 
-			// Check the auth response status and data
+			// Check the Authentication response status and data
 			LOG.info("processQRRequest() >>> Auth API Status: {}", authResponse.getStatusCode());
 			if (authResponse.getBody() != null) {
 				LOG.info("processQRRequest() >>> Auth Response Body: {}", authResponse.getBody());
@@ -180,12 +182,12 @@ public class DeviceCallbackService {
 				LOG.info("processQRRequest() >>> JWT Payload Token: {}", jwtPayloadToken);
 				accountId = JwtDecoder.extractSubFromJwt(jwtToken);
 				LOG.info("processQRRequest() >>> Account Id: {}", accountId);
+			} else {
+				LOG.info("processQRRequest() >>> Authentication API response is NULL");
 			}
 
 			// Get Customer Information API
 			HttpHeaders headers = new HttpHeaders();
-//			authHeaders.set("x-account-id", accountId);
-//			authHeaders.set("x-permissions", jwtPayloadToken);
 			headers.set("Accept", "*/*");
 			headers.set("x-account-id", accountId);
 			headers.set("x-permissions", jwtPayloadToken);
@@ -223,9 +225,11 @@ public class DeviceCallbackService {
 				JsonNode customerDataNode = objectMapper.readTree(decryptedData);
 				customerUid = customerDataNode.get("uid").asText();
 				LOG.info("processQRRequest() >>> custome uid: {}", customerUid);
+			} else {
+				LOG.info("processQRRequest() >>> Customer API response is NULL");
 			}
 
-			// Matching the user card no and customer id
+			// Check the customer id is exist in system
 			Optional<User> userOptional = userRepository
 					.findUserByAccountIdWithLimit(CommonUtil.validString(customerUid) ? customerUid.trim() : "-");
 
@@ -237,8 +241,22 @@ public class DeviceCallbackService {
 				qrCallbackDto.setCardNo(user.getFrCardNumber());
 			}
 
+			// TODO save customer info API and matching customer is id exist or not result into audit log table
+		} catch (HttpClientErrorException ex) {
+			// Catch 4xx errors (like 404)
+			if (ex.getStatusCode().is4xxClientError()) {
+				LOG.error("Client error occurred: {} - {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+			}
+			throw ex;
+		} catch (HttpServerErrorException ex) {
+			// Catch 5xx errors (like 500)
+			if (ex.getStatusCode().is5xxServerError()) {
+				LOG.error("Server error occurred: {} - {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+			}
+			throw ex; // Re-throw if needed
 		} catch (Exception e) {
-			LOG.error("processQRRequest() >>> ERROR: {}", e.getMessage(), e);
+			LOG.error("An unexpected error occurred: {}", e.getMessage());
+			// TODO save customer info API and matching customer is id exist or not result into audit log table
 			throw e;
 		}
 
