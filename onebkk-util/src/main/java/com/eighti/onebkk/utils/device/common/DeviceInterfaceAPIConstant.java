@@ -8,6 +8,7 @@ public class DeviceInterfaceAPIConstant {
 	public static final String GET_CALLBACK_ADDRESS = "/device/callback?pass={pass}";
 	public static final String SET_HEATBEAT_CALLBACK = "/setDeviceHeartBeat";
 	public static final String GET_DEVICE_KEY = "/getDeviceKey";
+	public static final String SET_QR_CALLBACK = "/device/setQRCodeCallback";
 
 	// Personal
 	public static final String PERSON_CREATE = "/person/create";

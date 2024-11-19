@@ -54,12 +54,12 @@ public class SchedulerTask {
 		LOG.info("\n===== END Perform Device Checking =====\n");
 	}
 
-	@Scheduled(fixedRate = fetchIdentifyLogFixedRate)
+	//@Scheduled(fixedRate = fetchIdentifyLogFixedRate)
 	public void fetchIdentifyLogFromDeviceTask() {
 		LOG.info("\n===== START Perform Fetch Identify Log =====");
 
 		try {
-			deviceService.fetchIdentifyLogFromDevices();
+			//deviceService.fetchIdentifyLogFromDevices();
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOG.error("fetchIdentifyLogFromDeviceTask() >>> ERROR: " + e.getMessage());

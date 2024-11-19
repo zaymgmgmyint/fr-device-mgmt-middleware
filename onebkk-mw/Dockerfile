@@ -23,7 +23,7 @@ RUN apk add --no-cache openjdk21
 COPY target/onebkk-api.jar onebkk.jar
 
 # Make port 8080 available to the world outside this container
-EXPOSE 8090
+EXPOSE 8080
 
 # Run the jar file
 ENTRYPOINT ["java", "-jar", "onebkk.jar"]

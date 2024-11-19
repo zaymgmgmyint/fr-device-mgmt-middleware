@@ -11,14 +11,14 @@
 
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOG_PATH}/development.log</file>
+		<file>C:/usr/onebkk/logs/innoflex-mw.log</file>
 		<encoder>
 			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} -
 				%msg%n</pattern>
 		</encoder>
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_PATH}/development-%d{yyyy-MM-dd}.%i.log
+			<fileNamePattern>C:/usr/onebkk/logs/innoflex-mw-%d{yyyy-MM-dd}.%i.log
 			</fileNamePattern>
 			<maxFileSize>5MB</maxFileSize>
 			<maxHistory>5</maxHistory>
@@ -30,9 +30,7 @@
 		<appender-ref ref="FILE" />
 	</root>
 
-	<!-- <logger name="org.springframework.web.servlet.view"
-		level="error" /> -->
-	<logger name="org.springframework.web" level="debug" />
-	<logger name="org.hibernate.SQL" level="debug" />
+	<logger name="org.springframework.web" level="error" />
+	<logger name="org.hibernate.SQL" level="error" />
 	<logger name="com.eighti.onebkk" level="info" />
 </configuration>

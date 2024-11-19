@@ -226,7 +226,6 @@ public class UserService {
 					}
 
 					// update sync status and date_time base on API response
-
 					if (personnelResponse != null && personnelResponse.isUserDeleted()) {
 						// TODO Delete the user device data
 						userDeviceRepository.delete(userDeviceEntity);

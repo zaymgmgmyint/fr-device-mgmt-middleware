@@ -68,4 +68,7 @@ public class User extends BaseEntity implements Serializable {
 
 	@Column(name = "status")
 	private Integer status;
+	
+	@Column(name = "user_account_id")
+	private String userAccountId;
 }
