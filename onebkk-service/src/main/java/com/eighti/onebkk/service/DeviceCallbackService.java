@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,12 @@ import com.eighti.onebkk.dto.api.response.TcctAuthResponse;
 import com.eighti.onebkk.entity.Device;
 import com.eighti.onebkk.entity.HeartBeatLog;
 import com.eighti.onebkk.entity.IdentifyLog;
+import com.eighti.onebkk.entity.QRCallbackLog;
 import com.eighti.onebkk.entity.User;
 import com.eighti.onebkk.repository.DeviceRepository;
 import com.eighti.onebkk.repository.HeartBeatLogRepository;
 import com.eighti.onebkk.repository.IdentifyLogRepository;
+import com.eighti.onebkk.repository.QrCallbackLogRepository;
 import com.eighti.onebkk.repository.UserRepository;
 import com.eighti.onebkk.utils.CommonUtil;
 import com.eighti.onebkk.utils.JwtDecoder;
@@ -51,16 +54,19 @@ public class DeviceCallbackService {
 	private final TCCTAPIComponent tcctApiComponent;
 	private final RestTemplate restTemplate;
 	private final UserRepository userRepository;
+	private final QrCallbackLogRepository qRCallbackLogRepository;
 
 	public DeviceCallbackService(HeartBeatLogRepository heartbeatLogRepository,
 			IdentifyLogRepository identifyLogRepository, DeviceRepository deviceRepository,
-			TCCTAPIComponent tcctApiComponent, RestTemplate restTemplate, UserRepository userRepository) {
+			TCCTAPIComponent tcctApiComponent, RestTemplate restTemplate, UserRepository userRepository,
+			QrCallbackLogRepository qRCallbackLogRepository) {
 		this.heartbeatLogRepository = heartbeatLogRepository;
 		this.identifyLogRepository = identifyLogRepository;
 		this.deviceRepository = deviceRepository;
 		this.tcctApiComponent = tcctApiComponent;
 		this.restTemplate = restTemplate;
 		this.userRepository = userRepository;
+		this.qRCallbackLogRepository = qRCallbackLogRepository;
 	}
 
 	// TODO save identify callback log
@@ -145,6 +151,10 @@ public class DeviceCallbackService {
 
 		QRCallbackDto qrCallbackDto = null;
 		String customerUid = null;
+		String qrId = null;
+		String encryptedDataBase64 = null;
+		QRCallbackLog qrCallbackLog = new QRCallbackLog();
+
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			String jwtPayloadToken = null, accountId = null;
@@ -154,7 +164,7 @@ public class DeviceCallbackService {
 			JsonNode qrDataNode = objectMapper.readTree(requestData.getQRdata());
 
 			// Extract the QR request data
-			String qrId = qrDataNode.get("id").asText();
+			qrId = qrDataNode.get("id").asText();
 			LOG.info("processQRRequest() >>> QR id: {}", qrId);
 
 			// Get Account ID and Permission(Authentication) API
@@ -207,7 +217,7 @@ public class DeviceCallbackService {
 				EncryptedDataResponse dataResponse = objectMapper.readValue(customerResponse.getBody(),
 						EncryptedDataResponse.class);
 
-				String encryptedDataBase64 = dataResponse.getData().getEncryptedData();
+				encryptedDataBase64 = dataResponse.getData().getEncryptedData();
 				LOG.info("processQRRequest() >>> Encrypted Data: {}", encryptedDataBase64);
 
 				// Decode the encrypted data from Base64
@@ -233,6 +243,7 @@ public class DeviceCallbackService {
 			Optional<User> userOptional = userRepository
 					.findUserByAccountIdWithLimit(CommonUtil.validString(customerUid) ? customerUid.trim() : "-");
 
+			// Check customer info API and matching customer is id exist or not result
 			qrCallbackDto = new QRCallbackDto();
 			if (userOptional.isPresent()) {
 				User user = userOptional.get();
@@ -241,25 +252,45 @@ public class DeviceCallbackService {
 				qrCallbackDto.setCardNo(user.getFrCardNumber());
 			}
 
-			// TODO save customer info API and matching customer is id exist or not result into audit log table
+			// into audit log table
+			qrCallbackLog.setQrData(requestData.getQRdata());
+			qrCallbackLog.setQrId(qrId);
+			qrCallbackLog.setEncryptedData(encryptedDataBase64);
+			qrCallbackLog.setDecryptedData(customerUid);
+			qrCallbackLog.setResponse(customerResponse.getBody() != null ? customerResponse.getBody() : null);
+			qrCallbackLog.setSuccess(true);
+
 		} catch (HttpClientErrorException ex) {
 			// Catch 4xx errors (like 404)
 			if (ex.getStatusCode().is4xxClientError()) {
 				LOG.error("Client error occurred: {} - {}", ex.getStatusCode(), ex.getResponseBodyAsString());
 			}
+			qrCallbackLog.setSuccess(false);
+			qrCallbackLog.setErrorCode(ex.getStatusCode().toString());
+			qrCallbackLog.setErrrMessage(ex.getMessage());
 			throw ex;
 		} catch (HttpServerErrorException ex) {
 			// Catch 5xx errors (like 500)
 			if (ex.getStatusCode().is5xxServerError()) {
 				LOG.error("Server error occurred: {} - {}", ex.getStatusCode(), ex.getResponseBodyAsString());
 			}
+			qrCallbackLog.setSuccess(false);
+			qrCallbackLog.setErrorCode(ex.getStatusCode().toString());
+			qrCallbackLog.setErrrMessage(ex.getMessage());
 			throw ex; // Re-throw if needed
 		} catch (Exception e) {
 			LOG.error("An unexpected error occurred: {}", e.getMessage());
-			// TODO save customer info API and matching customer is id exist or not result into audit log table
+			// TODO save customer info API and matching customer is id exist or not result
+			qrCallbackLog.setSuccess(false);
+			qrCallbackLog.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+			qrCallbackLog.setErrrMessage(e.getMessage());
+
+			// into audit log table
 			throw e;
 		}
 
+		qrCallbackLog.setLogDateTime(LocalDateTime.now());
+		qRCallbackLogRepository.save(qrCallbackLog);
 		return qrCallbackDto;
 	}
 
